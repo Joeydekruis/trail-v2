@@ -14,8 +14,10 @@ export function isSidebarUtilityPage(pathname: string) {
     pathname.startsWith("/projects/") ||
     pathname === "/pull-requests" ||
     pathname === "/issues" ||
-    // TRAIL-PATCH: board utility page — see PATCHES.md and github.com/Joeydekruis/trail-v2/issues/1
-    pathname === "/board"
+    // TRAIL-PATCH: Trail primary-nav pages — see PATCHES.md and github.com/Joeydekruis/trail-v2/issues/2
+    pathname === "/board" ||
+    pathname === "/files" ||
+    pathname === "/dashboard"
   );
 }
 

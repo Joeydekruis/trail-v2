@@ -3,6 +3,8 @@ import {
   ArrowRightIcon,
   ChartNoAxesColumnIcon,
   Columns3Icon,
+  FileTextIcon,
+  LayoutDashboardIcon,
   SettingsIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -257,11 +259,6 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
     closeMobileSidebar();
     void navigate({ to: "/issues", search: readIssueListPreferences() });
   };
-  // TRAIL-PATCH: interim Board nav until TrailShell (#2) — see PATCHES.md / issues/1
-  const handleBoardClick = () => {
-    closeMobileSidebar();
-    void navigate({ to: "/board", search: { status: "open" } });
-  };
   const handleSettingsClick = () => {
     closeMobileSidebar();
     void navigate({ to: "/settings" });
@@ -272,6 +269,20 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
       setOpenMobile(false);
     }
     void navigate({ to: "/usage" });
+  };
+
+  // TRAIL-PATCH: mobile-only Trail primary nav (desktop uses TrailShell rail) — see PATCHES.md / issues/2
+  const handleTrailDashboardClick = () => {
+    closeMobileSidebar();
+    void navigate({ to: "/dashboard" });
+  };
+  const handleTrailBoardClick = () => {
+    closeMobileSidebar();
+    void navigate({ to: "/board", search: { status: "open" } });
+  };
+  const handleTrailFilesClick = () => {
+    closeMobileSidebar();
+    void navigate({ to: "/files" });
   };
 
   const handleBackClick = () => {
@@ -311,12 +322,24 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
               onClick={handleIssuesClick}
             />
           ) : null}
-          {issuesSupported ? (
-            <SidebarUtilityItem
-              icon={<Columns3Icon />}
-              label={gt("Board", { $context: "sidebar link to the Trail kanban board" })}
-              onClick={handleBoardClick}
-            />
+          {isMobile ? (
+            <>
+              <SidebarUtilityItem
+                icon={<LayoutDashboardIcon />}
+                label={gt("Dashboard", { $context: "Trail primary nav" })}
+                onClick={handleTrailDashboardClick}
+              />
+              <SidebarUtilityItem
+                icon={<Columns3Icon />}
+                label={gt("Board", { $context: "Trail primary nav" })}
+                onClick={handleTrailBoardClick}
+              />
+              <SidebarUtilityItem
+                icon={<FileTextIcon />}
+                label={gt("Files", { $context: "Trail primary nav" })}
+                onClick={handleTrailFilesClick}
+              />
+            </>
           ) : null}
           <SidebarUtilityItem
             icon={<ChartNoAxesColumnIcon />}
