@@ -475,33 +475,36 @@ export function AppSidebarLayout({
         storageKey="chat_thread_sidebar_open"
         style={sidebarProviderStyle}
       >
-        {showSidebar ? (
-          <>
-            <SidebarBrandWidthProbe isElectron={isElectron} onWidthChange={setBrandWidth} />
-            <Sidebar
-              side="left"
-              collapsible="offcanvas"
-              data-app-sidebar=""
-              {...sidebarArea}
-              role="navigation"
-              aria-label={gt("Threads")}
-              resizable={{
-                maxWidth: sidebarMaximumWidth,
-                minWidth: sidebarMinimumWidth,
-                shouldAcceptWidth: ({ currentWidth, nextWidth, wrapper }) =>
-                  nextWidth <= currentWidth ||
-                  wrapper.clientWidth - nextWidth >= THREAD_MAIN_CONTENT_MIN_WIDTH,
-                storageKey: THREAD_SIDEBAR_WIDTH_STORAGE_KEY,
-                onResize: setSidebarWidth,
-              }}
-              style={windowControlsInsetStyle}
-            >
-              <ThreadSidebar routeReveal={sidebarRouteReveal} />
-              <SidebarRail onDoubleClick={resetSidebarWidth} />
-            </Sidebar>
-          </>
-        ) : null}
-        <TrailShell>{children}</TrailShell>
+        {/* TRAIL-PATCH: shell wraps sidebar + main so ProjectRail/PrimaryNav sit outside the thread sidebar */}
+        <TrailShell>
+          {showSidebar ? (
+            <>
+              <SidebarBrandWidthProbe isElectron={isElectron} onWidthChange={setBrandWidth} />
+              <Sidebar
+                side="left"
+                collapsible="offcanvas"
+                data-app-sidebar=""
+                {...sidebarArea}
+                role="navigation"
+                aria-label={gt("Threads")}
+                resizable={{
+                  maxWidth: sidebarMaximumWidth,
+                  minWidth: sidebarMinimumWidth,
+                  shouldAcceptWidth: ({ currentWidth, nextWidth, wrapper }) =>
+                    nextWidth <= currentWidth ||
+                    wrapper.clientWidth - nextWidth >= THREAD_MAIN_CONTENT_MIN_WIDTH,
+                  storageKey: THREAD_SIDEBAR_WIDTH_STORAGE_KEY,
+                  onResize: setSidebarWidth,
+                }}
+                style={windowControlsInsetStyle}
+              >
+                <ThreadSidebar routeReveal={sidebarRouteReveal} />
+                <SidebarRail onDoubleClick={resetSidebarWidth} />
+              </Sidebar>
+            </>
+          ) : null}
+          {children}
+        </TrailShell>
         <BackgroundThreadAnnouncer />
         <SidebarControl showSidebar={showSidebar} />
         {isElectron ? <HistorySwipeNavigation /> : null}

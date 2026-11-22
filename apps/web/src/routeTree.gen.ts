@@ -23,6 +23,8 @@ import { Route as ChatSettingsRouteImport } from './routes/_chat.settings'
 import { Route as ChatPullRequestsRouteImport } from './routes/_chat.pull-requests'
 import { Route as ChatNewRouteImport } from './routes/_chat.new'
 import { Route as ChatIssuesRouteImport } from './routes/_chat.issues'
+import { Route as ChatFilesRouteImport } from './routes/_chat.files'
+import { Route as ChatDashboardRouteImport } from './routes/_chat.dashboard'
 import { Route as ChatBoardRouteImport } from './routes/_chat.board'
 import { Route as ThreadsEnvironmentIdThreadIdRouteImport } from './routes/threads.$environmentId.$threadId'
 import { Route as ChatSettingsWorktreesRouteImport } from './routes/_chat.settings.worktrees'
@@ -123,6 +125,16 @@ const ChatNewRoute = ChatNewRouteImport.update({
 const ChatIssuesRoute = ChatIssuesRouteImport.update({
   id: '/issues',
   path: '/issues',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatFilesRoute = ChatFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatDashboardRoute = ChatDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => ChatRoute,
 } as any)
 const ChatBoardRoute = ChatBoardRouteImport.update({
@@ -304,6 +316,8 @@ export interface FileRoutesByFullPath {
   '/pair': typeof PairRoute
   '/welcome': typeof WelcomeRoute
   '/board': typeof ChatBoardRoute
+  '/dashboard': typeof ChatDashboardRoute
+  '/files': typeof ChatFilesRoute
   '/issues': typeof ChatIssuesRoute
   '/new': typeof ChatNewRoute
   '/pull-requests': typeof ChatPullRequestsRoute
@@ -350,6 +364,8 @@ export interface FileRoutesByTo {
   '/pair': typeof PairRoute
   '/welcome': typeof WelcomeRoute
   '/board': typeof ChatBoardRoute
+  '/dashboard': typeof ChatDashboardRoute
+  '/files': typeof ChatFilesRoute
   '/issues': typeof ChatIssuesRoute
   '/new': typeof ChatNewRoute
   '/pull-requests': typeof ChatPullRequestsRoute
@@ -399,6 +415,8 @@ export interface FileRoutesById {
   '/pair': typeof PairRoute
   '/welcome': typeof WelcomeRoute
   '/_chat/board': typeof ChatBoardRoute
+  '/_chat/dashboard': typeof ChatDashboardRoute
+  '/_chat/files': typeof ChatFilesRoute
   '/_chat/issues': typeof ChatIssuesRoute
   '/_chat/new': typeof ChatNewRoute
   '/_chat/pull-requests': typeof ChatPullRequestsRoute
@@ -449,6 +467,8 @@ export interface FileRouteTypes {
     | '/pair'
     | '/welcome'
     | '/board'
+    | '/dashboard'
+    | '/files'
     | '/issues'
     | '/new'
     | '/pull-requests'
@@ -495,6 +515,8 @@ export interface FileRouteTypes {
     | '/pair'
     | '/welcome'
     | '/board'
+    | '/dashboard'
+    | '/files'
     | '/issues'
     | '/new'
     | '/pull-requests'
@@ -543,6 +565,8 @@ export interface FileRouteTypes {
     | '/pair'
     | '/welcome'
     | '/_chat/board'
+    | '/_chat/dashboard'
+    | '/_chat/files'
     | '/_chat/issues'
     | '/_chat/new'
     | '/_chat/pull-requests'
@@ -693,6 +717,20 @@ declare module '@tanstack/react-router' {
       path: '/issues'
       fullPath: '/issues'
       preLoaderRoute: typeof ChatIssuesRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/_chat/files': {
+      id: '/_chat/files'
+      path: '/files'
+      fullPath: '/files'
+      preLoaderRoute: typeof ChatFilesRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/_chat/dashboard': {
+      id: '/_chat/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof ChatDashboardRouteImport
       parentRoute: typeof ChatRoute
     }
     '/_chat/board': {
@@ -988,6 +1026,8 @@ const ChatSettingsRouteWithChildren = ChatSettingsRoute._addFileChildren(
 
 interface ChatRouteChildren {
   ChatBoardRoute: typeof ChatBoardRoute
+  ChatDashboardRoute: typeof ChatDashboardRoute
+  ChatFilesRoute: typeof ChatFilesRoute
   ChatIssuesRoute: typeof ChatIssuesRoute
   ChatNewRoute: typeof ChatNewRoute
   ChatPullRequestsRoute: typeof ChatPullRequestsRoute
@@ -1001,6 +1041,8 @@ interface ChatRouteChildren {
 
 const ChatRouteChildren: ChatRouteChildren = {
   ChatBoardRoute: ChatBoardRoute,
+  ChatDashboardRoute: ChatDashboardRoute,
+  ChatFilesRoute: ChatFilesRoute,
   ChatIssuesRoute: ChatIssuesRoute,
   ChatNewRoute: ChatNewRoute,
   ChatPullRequestsRoute: ChatPullRequestsRoute,
