@@ -14,4 +14,4 @@ When you add or change a seam, update this table in the same PR.
 
 1. [Read-only Kanban board](https://github.com/Joeydekruis/trail-v2/issues/1) — done; interim Board sidebar link removed when TrailShell landed
 2. [TrailShell, project rail, primary nav](https://github.com/Joeydekruis/trail-v2/issues/2)
-3. [`/files` view for repo `docs/`](https://github.com/Joeydekruis/trail-v2/issues/3)
+3. [`/files` view for repo `docs/`](https://github.com/Joeydekruis/trail-v2/issues/3) — page lives under `apps/web/src/trail/files/`; route `_chat.files` from #2 (no new TRAIL-PATCH)
