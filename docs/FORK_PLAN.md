@@ -60,13 +60,16 @@ Mapping to Trail: "task = branch + chat as worktree" is a thread started with `w
 
 ## Fork rules (keep upstream merges possible)
 
-1. Branches: `upstream` mirrors `pingdotgg/t3code` untouched (fast-forward only). `trail/main` carries our work.
-2. Our code goes in new workspaces: `packages/trail-contracts`, `packages/trail-server`, and in `apps/web` only the routes and navigation hooks. Do not edit T3 schemas; add our own tables, commands and events, linked by thread id and issue number.
-3. Edits to T3 files only at seams (registering RPC methods, mounting routes, the app shell). Mark each with `TRAIL-PATCH` and list it in `PATCHES.md`. Goal: one wrapper component for the shell (`TrailShell`) instead of edits spread over many files.
-4. `routeTree.gen.ts`, `pnpm-lock.yaml` and `package.json` conflicts: take upstream's version and regenerate, never hand-merge.
-5. Keep the MIT license and T3 copyright notice. Rebrand (name, logo, mint #4AF7A3, the Trail design tokens, Electron signing as Derisory Ventures B.V.) in isolated files.
+1. Branches: `upstream` mirrors `pingdotgg/t3code` untouched (fast-forward only). `trail/main` / `origin` carries our work.
+2. **PRs only on `Joeydekruis/trail-v2`.** Never open pull requests against `pingdotgg/t3code`. Pin the forge base with `gh repo set-default Joeydekruis/trail-v2` and keep `upstream` push-disabled. Details: [trail-maintainer.md — Pull requests stay on Trail](./operations/trail-maintainer.md#pull-requests-stay-on-trail).
+3. Our code goes in new workspaces: `packages/trail-contracts`, `packages/trail-server`, and in `apps/web` only the routes and navigation hooks. Do not edit T3 schemas; add our own tables, commands and events, linked by thread id and issue number.
+4. Edits to T3 files only at seams (registering RPC methods, mounting routes, the app shell). Mark each with `TRAIL-PATCH` and list it in `PATCHES.md`. Goal: one wrapper component for the shell (`TrailShell`) instead of edits spread over many files.
+5. `routeTree.gen.ts`, `pnpm-lock.yaml` and `package.json` conflicts: take upstream's version and regenerate, never hand-merge.
+6. Keep the MIT license and T3 copyright notice. Rebrand (name, logo, mint #4AF7A3, the Trail design tokens, Electron signing as Derisory Ventures B.V.) in isolated files.
 
 ### Syncing with upstream
+
+**Runbook:** [trail-maintainer.md](./operations/trail-maintainer.md) (weekly checklist + [sync log](./operations/trail-sync-log.md)).
 
 - **Merge, don't rebase**, weekly: `upstream` into `trail/main`. Turn on `git rerere` so a conflict resolved once stays resolved.
 - **Nightly canary** (GitHub Action): merge `upstream` into a throwaway branch, run typecheck and tests, report how many commits we are behind and which files conflict. Do the first merge in week one.
@@ -107,6 +110,8 @@ Mapping to Trail: "task = branch + chat as worktree" is a thread started with `w
 Later, not in scope now: autopilot beyond the manual launch, roadmap/epics, decisions/ADRs with conflict view, knowledge MCP, Chrome extension, mobile, grouping several repos.
 
 ## Deployment
+
+**Today:** unsigned Mac/Windows builds and install steps are in [trail-maintainer.md](./operations/trail-maintainer.md#unsigned-desktop-releases-mac-and-windows). Automated GitHub Releases remain phase 0 below.
 
 Findings from the fork's release workflows. This only has to be settled before the first installable build, so it sits in phase 0 as a small task, not a blocker.
 

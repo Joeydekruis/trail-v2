@@ -136,19 +136,25 @@ Until that ships, treat **local `dist:desktop:*` + launch smoke** as the bar for
 
 ### Branching and upstream
 
-- **`upstream`** — `pingdotgg/t3code`, fast-forward only.
-- **`trail/main`** (or `main` carrying Trail work) — our patches; see fork rules in [FORK_PLAN.md](./docs/FORK_PLAN.md#fork-rules-keep-upstream-merges-possible).
-- Mark seams in upstream files with `TRAIL-PATCH`; list them in `PATCHES.md` when that file exists.
+- **`upstream`** — `pingdotgg/t3code`, **fetch only** (never push).
+- **`origin` / `main`** — Trail work on [Joeydekruis/trail-v2](https://github.com/Joeydekruis/trail-v2). **All PRs go here**, never to upstream. Pin with `gh repo set-default Joeydekruis/trail-v2` (see [trail-maintainer.md](./docs/operations/trail-maintainer.md#pull-requests-stay-on-trail)).
+- Mark seams in upstream files with `TRAIL-PATCH`; list them in `PATCHES.md`.
+
+## Maintainer (Trail fork)
+
+- **[trail-maintainer.md](./docs/operations/trail-maintainer.md)** — weekly upstream sync and unsigned Mac/Windows desktop releases
+- **[trail-sync-log.md](./docs/operations/trail-sync-log.md)** — when `upstream/main` was last merged
 
 ## Documentation map
 
-| Doc                                                | Use                                                                    |
-| -------------------------------------------------- | ---------------------------------------------------------------------- |
-| [FORK_PLAN.md](./docs/FORK_PLAN.md)                | Roadmap, design choices, deployment checklist                          |
-| [development.md](./docs/operations/development.md) | Full dev setup, desktop artifacts, signing                             |
-| [release.md](./docs/operations/release.md)         | Upstream’s six-target release train (reference)                        |
-| [AGENTS.md](./AGENTS.md)                           | Contributor agent rules (T3 monorepo conventions)                      |
-| T3 user docs under [docs/user/](./docs/user/)      | Agents, git, remote access — still accurate for the underlying product |
+| Doc                                                          | Use                                                                    |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| [FORK_PLAN.md](./docs/FORK_PLAN.md)                          | Roadmap, design choices, deployment checklist                          |
+| [trail-maintainer.md](./docs/operations/trail-maintainer.md) | Releases + weekly T3 sync for this fork                                |
+| [development.md](./docs/operations/development.md)           | Full dev setup, desktop artifacts, signing                             |
+| [release.md](./docs/operations/release.md)                   | Upstream’s six-target release train (reference)                        |
+| [AGENTS.md](./AGENTS.md)                                     | Contributor agent rules (T3 monorepo conventions)                      |
+| T3 user docs under [docs/user/](./docs/user/)                | Agents, git, remote access — still accurate for the underlying product |
 
 ## License
 
