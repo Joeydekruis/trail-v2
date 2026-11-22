@@ -61,3 +61,8 @@
   border-radius: 9999px;
   background: var(--trail-project-accent, var(--trail-mint));
 }
+
+/* Full-page Files owns the left tree; hide FilePreviewPanel's embedded explorer. */
+[data-trail-files-preview] [aria-label="File explorer"] {
+  display: none;
+}
