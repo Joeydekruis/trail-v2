@@ -8839,6 +8839,7 @@
   "e56a8d51219efaa0": "Aucun raccourci clavier ne correspond à votre recherche.",
   "45fa271ea0e1ac8e": "Bêta",
   "076a34907c215a53": "Tencil",
+  "fb3189fd50591419": "In your app, run npx tencil once (Node 22+). It pairs with this app and adds a review overlay; press C on your dev site to point and prompt. tencil.dev has the full guide. T3 Code never installs Tencil.",
   "3a678332fc7142f7": "Regroupe les fils de la barre latérale dans des dossiers de projet. Les fils épinglés restent en haut, les fils reportés et clos restent sous les dossiers.",
   "e4e91d155cb6a9b4": "Barre latérale classique (regrouper par projet)",
   "f079556d67367fe7": "Affiche les fils des dossiers sur deux lignes : le titre, puis la branche, la pull request et l’agent.",
@@ -8851,22 +8852,6 @@
   "298c7150a7621c80": "Hôtes d’appareils Simlock",
   "67937aa49179285e": "Sur Mac, clone les nouveaux worktrees depuis une copie en cache dans le dossier T3 home au lieu d’écrire chaque fichier. Utilise le checkout Git normal quand ce n’est pas possible. La désactivation supprime le cache.",
   "f9904f78d3003f58": "Checkout rapide des worktrees",
-  "4f5300119012444a": [
-    "Point at elements on your running dev site and send changes to agents here. In your app folder, run ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "npx tencil"
-    },
-    " once (Node 22+). The first run pairs with this app and starts the local daemon, then adds the dev integration. Start your dev server and press C on the page. More on",
-    " ",
-    {
-      "t": "a",
-      "i": 2,
-      "c": "tencil.dev"
-    },
-    ". T3 Code never installs Tencil."
-  ],
   "fb2449564e201a35": "Open tencil.dev",
   "ec7623deed751c05": [
     "Partagez un fil avec un invité qui le suit en direct dans un navigateur et envoie des messages que vous approuvez. Nécessite T3 Connect : connectez-vous et associez cette machine dans",

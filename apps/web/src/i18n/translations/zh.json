@@ -8856,6 +8856,7 @@
   "e56a8d51219efaa0": "没有匹配的快捷键。",
   "45fa271ea0e1ac8e": "测试版",
   "076a34907c215a53": "Tencil",
+  "fb3189fd50591419": "In your app, run npx tencil once (Node 22+). It pairs with this app and adds a review overlay; press C on your dev site to point and prompt. tencil.dev has the full guide. T3 Code never installs Tencil.",
   "3a678332fc7142f7": "将侧边栏会话按项目文件夹分组。置顶会话保留在顶部，已暂缓和已收尾会话显示在文件夹下方。",
   "e4e91d155cb6a9b4": "简洁侧边栏（按项目分组）",
   "f079556d67367fe7": "分两行显示文件夹内的会话：第一行显示标题，第二行显示分支、pull request 和智能体。",
@@ -8868,22 +8869,6 @@
   "298c7150a7621c80": "Simlock 设备主机",
   "67937aa49179285e": "在 Mac 上，从缓存在 T3 主目录中的工作副本克隆新的工作树，无需逐个写入每个文件。无法使用时改为 Git 的常规检出。关闭后会删除缓存。",
   "f9904f78d3003f58": "快速创建工作树",
-  "4f5300119012444a": [
-    "Point at elements on your running dev site and send changes to agents here. In your app folder, run ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "npx tencil"
-    },
-    " once (Node 22+). The first run pairs with this app and starts the local daemon, then adds the dev integration. Start your dev server and press C on the page. More on",
-    " ",
-    {
-      "t": "a",
-      "i": 2,
-      "c": "tencil.dev"
-    },
-    ". T3 Code never installs Tencil."
-  ],
   "fb2449564e201a35": "Open tencil.dev",
   "ec7623deed751c05": [
     "与访客共享会话，访客可在浏览器中实时观看并发送需经你批准的消息。需要 T3 Connect：请登录并在",

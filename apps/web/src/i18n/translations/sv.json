@@ -8846,6 +8846,7 @@
   "e56a8d51219efaa0": "Inga kortkommandon matchar sökningen.",
   "45fa271ea0e1ac8e": "Beta",
   "076a34907c215a53": "Tencil",
+  "fb3189fd50591419": "In your app, run npx tencil once (Node 22+). It pairs with this app and adds a review overlay; press C on your dev site to point and prompt. tencil.dev has the full guide. T3 Code never installs Tencil.",
   "3a678332fc7142f7": "Gruppera trådar i sidofältet i projektmappar. Fästa trådar ligger överst, och Snoozade och Klara ligger under mapparna.",
   "e4e91d155cb6a9b4": "Enkelt sidofält (gruppera per projekt)",
   "f079556d67367fe7": "Visa trådar i mappar på två rader: titeln, sedan gren, pull request och agent.",
@@ -8858,22 +8859,6 @@
   "298c7150a7621c80": "Simlock-enhetsvärdar",
   "67937aa49179285e": "På en Mac klonas nya worktrees från en utcheckning som cachas i T3-hemmappen i stället för att varje fil skrivs. Använder Gits vanliga utcheckning när det inte går. Om du stänger av det tas cachen bort.",
   "f9904f78d3003f58": "Snabb utcheckning av worktree",
-  "4f5300119012444a": [
-    "Point at elements on your running dev site and send changes to agents here. In your app folder, run ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "npx tencil"
-    },
-    " once (Node 22+). The first run pairs with this app and starts the local daemon, then adds the dev integration. Start your dev server and press C on the page. More on",
-    " ",
-    {
-      "t": "a",
-      "i": 2,
-      "c": "tencil.dev"
-    },
-    ". T3 Code never installs Tencil."
-  ],
   "fb2449564e201a35": "Open tencil.dev",
   "ec7623deed751c05": [
     "Dela en tråd med en gäst som följer den live i en webbläsare och skickar meddelanden som du godkänner. Kräver T3 Connect: logga in och länka den här datorn under",

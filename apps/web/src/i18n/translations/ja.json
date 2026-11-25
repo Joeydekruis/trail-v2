@@ -8796,6 +8796,7 @@
   "e56a8d51219efaa0": "検索に一致するキーボードショートカットはありません。",
   "45fa271ea0e1ac8e": "ベータ",
   "076a34907c215a53": "Tencil",
+  "fb3189fd50591419": "In your app, run npx tencil once (Node 22+). It pairs with this app and adds a review overlay; press C on your dev site to point and prompt. tencil.dev has the full guide. T3 Code never installs Tencil.",
   "3a678332fc7142f7": "サイドバーのスレッドをプロジェクトフォルダーにまとめます。ピン留めしたスレッドは上部に残り、スヌーズ中と対応済みはフォルダーの下に表示されます。",
   "e4e91d155cb6a9b4": "シンプルなサイドバー(プロジェクトでグループ化)",
   "f079556d67367fe7": "フォルダー内のスレッドを 2 行で表示します。1 行目にタイトル、2 行目にブランチ、プルリクエスト、エージェントを表示します。",
@@ -8808,22 +8809,6 @@
   "298c7150a7621c80": "Simlock デバイスホスト",
   "67937aa49179285e": "Mac では、すべてのファイルを書き込む代わりに、T3 ホームフォルダーにキャッシュしたチェックアウトから新しいワークツリーを複製します。できない場合は Git の通常のチェックアウトを使います。オフにするとキャッシュは削除されます。",
   "f9904f78d3003f58": "高速ワークツリーチェックアウト",
-  "4f5300119012444a": [
-    "Point at elements on your running dev site and send changes to agents here. In your app folder, run ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "npx tencil"
-    },
-    " once (Node 22+). The first run pairs with this app and starts the local daemon, then adds the dev integration. Start your dev server and press C on the page. More on",
-    " ",
-    {
-      "t": "a",
-      "i": 2,
-      "c": "tencil.dev"
-    },
-    ". T3 Code never installs Tencil."
-  ],
   "fb2449564e201a35": "Open tencil.dev",
   "ec7623deed751c05": [
     "スレッドをゲストと共有します。ゲストはブラウザーでライブで閲覧し、あなたが承認したメッセージを送信できます。T3 Connect が必要です。サインインして、",

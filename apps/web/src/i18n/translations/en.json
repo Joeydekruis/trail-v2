@@ -8848,6 +8848,7 @@
   "e56a8d51219efaa0": "No keybindings match your search.",
   "45fa271ea0e1ac8e": "Beta",
   "076a34907c215a53": "Tencil",
+  "fb3189fd50591419": "In your app, run npx tencil once (Node 22+). It pairs with this app and adds a review overlay; press C on your dev site to point and prompt. tencil.dev has the full guide. T3 Code never installs Tencil.",
   "3a678332fc7142f7": "Group sidebar threads into project folders. Pinned threads stay on top, and Snoozed and Settled stay below the folders.",
   "e4e91d155cb6a9b4": "Boring sidebar (group by project)",
   "f079556d67367fe7": "Show folder threads on two lines: the title, then the branch, pull request, and agent.",
@@ -8860,22 +8861,6 @@
   "298c7150a7621c80": "Simlock device hosts",
   "67937aa49179285e": "On a Mac, clone new worktrees from a checkout cached in the T3 home folder instead of writing every file. Uses Git’s normal checkout when it can’t. Turning it off deletes the cache.",
   "f9904f78d3003f58": "Fast worktree checkout",
-  "4f5300119012444a": [
-    "Point at elements on your running dev site and send changes to agents here. In your app folder, run ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "npx tencil"
-    },
-    " once (Node 22+). The first run pairs with this app and starts the local daemon, then adds the dev integration. Start your dev server and press C on the page. More on",
-    " ",
-    {
-      "t": "a",
-      "i": 2,
-      "c": "tencil.dev"
-    },
-    ". T3 Code never installs Tencil."
-  ],
   "fb2449564e201a35": "Open tencil.dev",
   "ec7623deed751c05": [
     "Share a thread with a guest who watches it live in a browser and sends messages you approve. Needs T3 Connect: sign in and link this machine in",

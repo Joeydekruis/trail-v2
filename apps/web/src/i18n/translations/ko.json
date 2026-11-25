@@ -8799,6 +8799,7 @@
   "e56a8d51219efaa0": "검색과 일치하는 단축키가 없습니다.",
   "45fa271ea0e1ac8e": "베타",
   "076a34907c215a53": "Tencil",
+  "fb3189fd50591419": "In your app, run npx tencil once (Node 22+). It pairs with this app and adds a review overlay; press C on your dev site to point and prompt. tencil.dev has the full guide. T3 Code never installs Tencil.",
   "3a678332fc7142f7": "사이드바 스레드를 프로젝트 폴더로 묶습니다. 고정된 스레드는 맨 위에, 다시 알림과 정리됨은 폴더 아래에 유지됩니다.",
   "e4e91d155cb6a9b4": "단순 사이드바(프로젝트별 그룹화)",
   "f079556d67367fe7": "폴더 스레드를 두 줄로 표시합니다. 첫 줄은 제목, 둘째 줄은 브랜치, 풀 리퀘스트, 에이전트입니다.",
@@ -8811,22 +8812,6 @@
   "298c7150a7621c80": "Simlock 기기 호스트",
   "67937aa49179285e": "Mac에서 모든 파일을 쓰는 대신 T3 홈 폴더에 캐시된 체크아웃에서 새 워크트리를 복제합니다. 불가능하면 Git의 일반 체크아웃을 사용합니다. 끄면 캐시가 삭제됩니다.",
   "f9904f78d3003f58": "빠른 워크트리 체크아웃",
-  "4f5300119012444a": [
-    "Point at elements on your running dev site and send changes to agents here. In your app folder, run ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "npx tencil"
-    },
-    " once (Node 22+). The first run pairs with this app and starts the local daemon, then adds the dev integration. Start your dev server and press C on the page. More on",
-    " ",
-    {
-      "t": "a",
-      "i": 2,
-      "c": "tencil.dev"
-    },
-    ". T3 Code never installs Tencil."
-  ],
   "fb2449564e201a35": "Open tencil.dev",
   "ec7623deed751c05": [
     "브라우저에서 실시간으로 지켜보고 승인한 메시지를 보낼 수 있는 게스트와 스레드를 공유합니다. T3 Connect가 필요합니다. 로그인한 뒤",
