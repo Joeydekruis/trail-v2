@@ -12,6 +12,8 @@ import {
   getThemeModes,
   type ThemeAppearance,
   type ThemeDefinition,
+  TRAIL_THEME,
+  getThemeCardDefinition,
 } from "../../themePalette";
 
 const THEME_PREVIEW_ROLES = [
@@ -56,15 +58,9 @@ const STANDARD_THEME_PREVIEW_COLORS: Record<
   },
 };
 
+// TRAIL-PATCH: Trail replaces stock T3 Code in the theme library (Joeydekruis/trail-v2).
 export const STANDARD_THEME_CARDS: ReadonlyArray<ThemeCardDefinition> = [
-  {
-    id: "default",
-    label: "T3 Code",
-    previews: (["light", "dark"] as const).map((mode) => ({
-      mode,
-      colors: STANDARD_THEME_PREVIEW_COLORS[mode],
-    })),
-  },
+  getThemeCardDefinition(TRAIL_THEME),
 ];
 
 export function previewColorsOf(

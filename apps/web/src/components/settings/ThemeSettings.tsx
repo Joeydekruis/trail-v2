@@ -793,7 +793,7 @@ export function ThemeLibrary({
       >
         {STANDARD_THEME_CARDS.map((standardTheme) => (
           <ThemeLibraryCard
-            activeModes={pickedModesFor(null)}
+            activeModes={pickedModesFor(standardTheme.id)}
             isActive={false}
             key={standardTheme.id}
             onDuplicate={() =>
@@ -804,8 +804,8 @@ export function ThemeLibrary({
                 initialAppearance,
               })
             }
-            onUse={() => persistTheme(appearanceMode === "system" ? "system" : appearanceMode)}
-            onUseMode={handlePairPick(null)}
+            onUse={() => persistTheme(standardTheme.id)}
+            onUseMode={handlePairPick(standardTheme.id)}
             theme={standardTheme}
           />
         ))}

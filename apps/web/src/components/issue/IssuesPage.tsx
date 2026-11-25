@@ -714,12 +714,20 @@ function IssuesListPage() {
 
   const allIssueRows = groups.flatMap((group) => group.rows);
   const boardFilteredRows = filterIssuesByLabelNames(allIssueRows, search.label ?? []);
+  const boardScopedRows =
+    trailScopedProject === null || trailScopedProject === undefined
+      ? boardFilteredRows
+      : boardFilteredRows.filter(
+          (row) =>
+            row.environmentId === trailScopedProject.environmentId &&
+            row.projectId === trailScopedProject.projectId,
+        );
   const boardAutopilot = useTrailBoardAutopilot(
     trailScopedProject?.environmentId ?? null,
     trailScopedProject?.projectId ?? null,
   );
   const boardWork = useTrailIssueWork({
-    rows: boardFilteredRows,
+    rows: boardScopedRows,
     onListRefresh: () => list.refresh(),
     autopilotEnabled: boardAutopilot.enabled,
   });

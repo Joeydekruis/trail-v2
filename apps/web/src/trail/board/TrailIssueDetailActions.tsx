@@ -13,16 +13,8 @@ export function TrailIssueDetailActions({
 }) {
   return (
     <>
-      <TrailStartTaskButton
-        size="xs"
-        entry={entry}
-        startIssueWork={work.startIssueWork}
-      />
-      <TrailMarkForReviewButton
-        size="xs"
-        entry={entry}
-        markForReview={work.markForReview}
-      />
+      <TrailStartTaskButton size="xs" entry={entry} startIssueWork={work.startIssueWork} />
+      <TrailMarkForReviewButton size="xs" entry={entry} markForReview={work.markForReview} />
     </>
   );
 }

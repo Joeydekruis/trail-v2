@@ -17,6 +17,7 @@ import {
   resolveThemeHalf,
   subscribeToThemePreview,
   THEME_PREVIEW_ID,
+  TRAIL_PROJECT_THEME_OVERLAY_ID,
   THEME_APPEARANCE_MODE_STORAGE_KEY,
   THEME_FOLLOW_SYSTEM_STORAGE_KEY,
   THEME_HALVES_STORAGE_KEY,
@@ -305,7 +306,11 @@ export function syncBrowserChromeTheme() {
 
 function applyTheme(theme: Theme, { suppressTransitions = false, preservePreview = true } = {}) {
   if (typeof document === "undefined" || typeof window === "undefined") return;
-  if (preservePreview && document.documentElement.dataset?.themeId === THEME_PREVIEW_ID) {
+  const activeThemeId = document.documentElement.dataset?.themeId;
+  if (
+    preservePreview &&
+    (activeThemeId === THEME_PREVIEW_ID || activeThemeId === TRAIL_PROJECT_THEME_OVERLAY_ID)
+  ) {
     return;
   }
   const appearanceMode = readAppearanceModePreference(theme);

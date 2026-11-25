@@ -54,6 +54,7 @@ import {
 } from "./ProjectFaviconPickerDialog";
 import { ProjectActionsSettings } from "./ProjectActionsSettings";
 import { ProjectDefaultsSettings } from "./ProjectDefaultsSettings";
+import { TrailProjectThemeSettingsRow } from "~/trail/settings/TrailProjectThemeSettingsRow";
 import { ProjectRepositoriesSettings } from "./ProjectRepositoriesSettings";
 import {
   defaultProjectIcon,
@@ -690,6 +691,9 @@ function ProjectDetail({
               />
             </>
           ) : null}
+        </SettingsSection>
+        <SettingsSection id="project-appearance" title={gt("Appearance")}>
+          <TrailProjectThemeSettingsRow />
         </SettingsSection>
         <ProjectDefaultsSettings category="project" />
         <ProjectActionsSettings />

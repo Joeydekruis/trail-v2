@@ -36,6 +36,7 @@ import {
   useComposerDraftStore,
 } from "./composerDraftStore";
 import { startDefaultThemeAdoption } from "./hooks/useDefaultTheme";
+import { startTrailDefaultThemeBootstrap } from "./trail/theme/startTrailDefaultThemeBootstrap";
 import { startEnvironmentThemeRepaint } from "./hooks/useEnvironmentTheme";
 import { startThemeBackground } from "./themeBackground";
 import { readLocalStorageValue, subscribeLocalStorageKey } from "./hooks/useLocalStorage";
@@ -278,6 +279,7 @@ export function startAppServices(): AppRouter {
   startThemeBackground();
   startBrowserChromeThemeSync(router);
   startDefaultThemeAdoption();
+  startTrailDefaultThemeBootstrap();
   startModelPreferencesMigration();
   startAgentOpenedPreviews();
   if (isElectron) startElectronBrowserHost();

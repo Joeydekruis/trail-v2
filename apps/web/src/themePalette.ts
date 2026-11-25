@@ -16,6 +16,9 @@ import {
   T3_CHAT_THEME,
   T3_CODE_LIGHT_THEME_COLORS,
   T3_CODE_DARK_THEME_COLORS,
+  TRAIL_THEME,
+  TRAIL_LIGHT_THEME_COLORS,
+  TRAIL_DARK_THEME_COLORS,
   RESERVED_THEME_IDS,
   THEME_COLOR_ROLES,
   type ThemeAppearance,
@@ -36,7 +39,15 @@ import { applyThemeBackground } from "./themeBackground";
 import { applyThemeCss } from "./themeCss";
 import { themeServerEnvironmentThemesAtom } from "./state/server";
 
-export { EMBER_THEME, GROVE_THEME, IRIS_THEME, OCEAN_THEME, T3_CHAT_THEME, THEME_COLOR_ROLES };
+export {
+  EMBER_THEME,
+  GROVE_THEME,
+  IRIS_THEME,
+  OCEAN_THEME,
+  T3_CHAT_THEME,
+  TRAIL_THEME,
+  THEME_COLOR_ROLES,
+};
 export type { ThemeAppearance, ThemeColorRole, ThemeColors, ThemeDefinition, ThemeVariants };
 
 const T3_CHAT_THEME_ID = "t3-chat" as const;
@@ -434,18 +445,15 @@ function legacyThemeMode(theme: ThemePreference): ThemeAppearance | null {
 
 export function getStandardThemeColors(appearance: ThemeAppearance): ThemeColors {
   if (appearance === "dark") {
-    return (standardDarkThemeColors ??= decodeThemeColors({
-      ...T3_CODE_DARK_THEME_COLORS,
-      canvas: "#000000",
-    }));
+    return (standardDarkThemeColors ??= decodeThemeColors(TRAIL_DARK_THEME_COLORS));
   }
-  return (standardLightThemeColors ??= decodeThemeColors(T3_CODE_LIGHT_THEME_COLORS));
+  return (standardLightThemeColors ??= decodeThemeColors(TRAIL_LIGHT_THEME_COLORS));
 }
 
 // index.css paints the light bubble a step darker than the shared palette mobile uses.
 const STANDARD_WEB_PAINTED_COLORS: Record<ThemeAppearance, Partial<ThemeColors>> = {
-  light: { messageSurface: "#ebebed" },
-  dark: { canvas: "#000000", messageSurface: "#1e1e1e" },
+  light: { messageSurface: "#ebeae5" },
+  dark: { messageSurface: "#242422" },
 };
 
 /** The standard theme as index.css paints it, for solves that measure the page. */
@@ -1719,6 +1727,45 @@ export function getThemeColorVariable(role: ThemeColorRole): string {
 }
 
 export const THEME_PREVIEW_ID = "__preview";
+/** TRAIL-PATCH: transient paint while a scoped project is active (Joeydekruis/trail-v2). */
+export const TRAIL_PROJECT_THEME_OVERLAY_ID = "__trail-project";
+
+let trailProjectThemeOverlay: string | null = null;
+
+export function getTrailProjectThemeOverlay(): string | null {
+  return trailProjectThemeOverlay;
+}
+
+export function applyTrailProjectThemeOverlay(
+  themeId: string,
+  resolvedAppearance: ThemeAppearance,
+): void {
+  if (typeof document === "undefined") return;
+  const definition = getThemeDefinition(themeId);
+  if (!definition) {
+    clearTrailProjectThemeOverlay();
+    return;
+  }
+  trailProjectThemeOverlay = themeId;
+  const root = document.documentElement;
+  if (!root?.style) return;
+
+  setThemePreviewAppearance(null);
+  root.dataset.themeId = TRAIL_PROJECT_THEME_OVERLAY_ID;
+  root.classList.toggle("dark", resolvedAppearance === "dark");
+  const colors = getThemeColorsForMode(definition, resolvedAppearance) ?? definition.colors;
+  for (const [role, value] of Object.entries(colors) as Array<[ThemeColorRole, string]>) {
+    if (isThemeColor(value)) root.style.setProperty(APP_THEME_VARIABLES[role], value);
+  }
+  applyContextChipVariables(root, colors);
+  applyThemeCss(definition.css);
+  applyThemeBackground(definition.id);
+  for (const listener of themePreviewListeners) listener();
+}
+
+export function clearTrailProjectThemeOverlay(): void {
+  trailProjectThemeOverlay = null;
+}
 
 /** Callers must restore the stored theme with refreshTheme when the draft closes. */
 export function applyThemeColorPreview(

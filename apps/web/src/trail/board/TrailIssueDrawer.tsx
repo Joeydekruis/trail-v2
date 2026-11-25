@@ -83,10 +83,7 @@ export function TrailIssueDrawer({
           </SheetDescription>
         </SheetHeader>
         {selection && reference ? (
-          <div
-            className="flex min-h-0 flex-1 flex-col overflow-hidden"
-            data-slot="sheet-panel"
-          >
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-slot="sheet-panel">
             <TrailAcceptanceCriteria body={detailQuery.data?.body} />
             <div className="min-h-0 flex-1">
               <IssueDetailPanel

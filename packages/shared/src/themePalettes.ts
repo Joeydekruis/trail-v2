@@ -1,8 +1,21 @@
-export const BUILT_IN_THEME_IDS = ["t3-chat", "grove", "ocean", "ember", "iris"] as const;
+// TRAIL-PATCH: Trail is the fork default built-in (Joeydekruis/trail-v2)
+import {
+  TRAIL_DARK_THEME_COLORS,
+  TRAIL_LIGHT_THEME_COLORS,
+  TRAIL_THEME,
+} from "./trailTheme.ts";
 
-export const MOBILE_DEFAULT_THEME_ID = "t3-code";
+export { TRAIL_DARK_THEME_COLORS, TRAIL_LIGHT_THEME_COLORS, TRAIL_THEME };
 
-export const MOBILE_THEME_IDS = [MOBILE_DEFAULT_THEME_ID, ...BUILT_IN_THEME_IDS] as const;
+export const BUILT_IN_THEME_IDS = ["trail", "t3-chat", "grove", "ocean", "ember", "iris"] as const;
+
+export const MOBILE_DEFAULT_THEME_ID = "trail";
+
+export const MOBILE_THEME_IDS = [
+  MOBILE_DEFAULT_THEME_ID,
+  ...BUILT_IN_THEME_IDS.filter((id) => id !== MOBILE_DEFAULT_THEME_ID),
+  "t3-code",
+] as const;
 
 /** Reserve appearance keywords, built-ins, and legacy aliases so custom themes cannot capture stored preferences. */
 export const RESERVED_THEME_IDS: ReadonlySet<string> = new Set([
@@ -911,6 +924,7 @@ export const IRIS_THEME: ThemeDefinition = {
 };
 
 export const BUILT_IN_THEMES: ReadonlyArray<ThemeDefinition> = [
+  TRAIL_THEME,
   T3_CHAT_THEME,
   GROVE_THEME,
   OCEAN_THEME,

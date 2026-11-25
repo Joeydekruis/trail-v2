@@ -1210,6 +1210,8 @@ export const PROJECT_SCOPED_SERVER_SETTING_KEYS = [
   "speechProjectCustomWords",
   // TRAIL-PATCH: board autopilot (Joeydekruis/trail-v2)
   "trailBoardAutopilotEnabled",
+  // TRAIL-PATCH: appearance theme id when this project is active (Joeydekruis/trail-v2)
+  "trailAppearanceThemeId",
 ] as const;
 export type ProjectScopedServerSettingKey = (typeof PROJECT_SCOPED_SERVER_SETTING_KEYS)[number];
 
@@ -1250,6 +1252,8 @@ export const ProjectSettingsOverrides = Schema.Struct({
   speechProjectCustomWords: Schema.optionalKey(SpeechCustomWords),
   // TRAIL-PATCH: picks up Todo issues when the in-progress slot is free
   trailBoardAutopilotEnabled: Schema.optionalKey(Schema.Boolean),
+  // TRAIL-PATCH: theme id applied while this project is in focus; inherits globally when unset
+  trailAppearanceThemeId: Schema.optionalKey(DefaultThemePreference),
   providerInstances: Schema.optionalKey(
     Schema.Record(ProviderInstanceId, ProjectProviderInstanceOverride),
   ),
@@ -1463,6 +1467,8 @@ export const ServerSettings = Schema.Struct({
   trailBoardAutopilotEnabled: Schema.Boolean.pipe(
     Schema.withDecodingDefault(Effect.succeed(false)),
   ),
+  // TRAIL-PATCH: unset at environment scope; per-project overrides set the active palette
+  trailAppearanceThemeId: DefaultThemePreference.pipe(Schema.withDecodingDefault(Effect.succeed(""))),
   /** Enabling the Device panel must not grant providers device control. */
   enableDeviceSupport: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
   deviceOnboardingCompleted: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
@@ -1921,6 +1927,7 @@ export const ServerSettingsPatch = Schema.Struct({
   ),
   enableAgentDeviceAccess: Schema.optionalKey(Schema.Boolean),
   trailBoardAutopilotEnabled: Schema.optionalKey(Schema.Boolean),
+  trailAppearanceThemeId: Schema.optionalKey(DefaultThemePreference),
   enableDeviceSupport: Schema.optionalKey(Schema.Boolean),
   deviceOnboardingCompleted: Schema.optionalKey(Schema.Boolean),
   deviceHosts: Schema.optionalKey(SshDeviceHostConfigs),

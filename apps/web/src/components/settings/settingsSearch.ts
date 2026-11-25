@@ -1214,6 +1214,14 @@ export const SETTINGS_SEARCH_ITEMS = [
     scope: "project-defaults",
     searchTerms: [msg("auto pull default branch current checkout fast forward upstream")],
   },
+  // TRAIL-PATCH: per-project theme (Joeydekruis/trail-v2)
+  {
+    id: "trail-project-theme",
+    title: msg("Theme"),
+    to: "/settings/projects",
+    scope: "project-defaults",
+    searchTerms: [msg("appearance colors palette project theme trail")],
+  },
   // TRAIL-PATCH: board autopilot (Joeydekruis/trail-v2 #8)
   {
     id: "trail-board-autopilot",

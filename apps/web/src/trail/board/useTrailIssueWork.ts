@@ -13,11 +13,15 @@ import { issueEnvironment } from "~/state/issues";
 import { threadEnvironment } from "~/state/threads";
 
 import {
+  assignBoardColumn,
   type BoardColumnId,
-  groupIssuesByBoardColumn,
-  hasOpenInProgressIssue,
   mergeIssueLabelsForColumn,
 } from "./boardColumns.logic";
+import {
+  hasInProgressMutex,
+  pickNextOpenTodo,
+  projectIssueBoardRows,
+} from "./trailBoardQueue.logic";
 import { buildTrailIssueStartPrompt } from "./trailIssueWorkPrompt.logic";
 import { trailSendIssueDraftTurn } from "./trailSendIssueDraftTurn.logic";
 
@@ -75,9 +79,10 @@ export function useTrailIssueWork({
   const startIssueWork = async (
     entry: EnvironmentIssueEntry,
     options?: { readonly body?: string | null },
+    mutexRows: readonly EnvironmentIssueEntry[] = rows,
   ) => {
     if (entry.state.category === "closed") return;
-    const slotTaken = hasOpenInProgressIssue(rows);
+    const slotTaken = hasInProgressMutex(mutexRows);
     if (slotTaken) {
       const queued = await applyColumnLabels(entry, "todo");
       if (queued._tag === "Failure") {
@@ -194,6 +199,9 @@ export function useTrailIssueWork({
   };
 
   const markForReview = async (entry: EnvironmentIssueEntry) => {
+    if (assignBoardColumn(entry.labels, entry.state) === "review") {
+      return;
+    }
     const result = await applyColumnLabels(entry, "review");
     if (result._tag === "Failure") {
       toastManager.add({
@@ -212,18 +220,10 @@ export function useTrailIssueWork({
       return;
     }
 
-    const openRows = rows.filter(
-      (row) =>
-        row.state.category === "open" &&
-        !(
-          row.environmentId === entry.environmentId &&
-          row.key === entry.key &&
-          row.scope === entry.scope
-        ),
-    );
-    const nextTodo = groupIssuesByBoardColumn(openRows).todo[0];
+    const projectedRows = projectIssueBoardRows(rows, entry, "review");
+    const nextTodo = pickNextOpenTodo(projectedRows);
     if (nextTodo === undefined) return;
-    await startIssueWork(nextTodo);
+    await startIssueWork(nextTodo, undefined, projectedRows);
   };
 
   const queueTodo = async (entry: EnvironmentIssueEntry) => {
@@ -240,7 +240,7 @@ export function useTrailIssueWork({
       return;
     }
     onListRefresh();
-    if (autopilotEnabled && !hasOpenInProgressIssue(rows)) {
+    if (autopilotEnabled && !hasInProgressMutex(rows)) {
       await startIssueWork(entry);
     }
   };

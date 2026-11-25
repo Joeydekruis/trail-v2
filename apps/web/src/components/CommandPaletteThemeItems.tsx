@@ -44,7 +44,7 @@ function useThemeCards() {
   const environmentThemes = useEnvironmentThemeDefinitions();
   const seen = new Set<string>();
   return [
-    ...STANDARD_THEME_CARDS.map((card) => ({ ...card, id: null })),
+    ...STANDARD_THEME_CARDS,
     ...[...BUILT_IN_THEMES, ...customThemes, ...environmentThemes]
       .filter((definition) => {
         if (seen.has(definition.id)) return false;
