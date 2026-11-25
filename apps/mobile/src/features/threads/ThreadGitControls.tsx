@@ -1,3 +1,5 @@
+import { useAtomValue } from "@effect/atom-react";
+import { resolveProjectSettings } from "@t3tools/shared/projectSettings";
 import { msg, useGT, useMessages } from "gt-react-native";
 
 import * as Dialog from "../../components/ui/Dialog";
@@ -22,6 +24,8 @@ import { changeRequestTermKind } from "../../lib/changeRequestTerm";
 
 import { m, type MessageResolver } from "../../i18n/messages";
 import { useEnvironmentScope } from "../../state/session";
+import { serverEnvironment } from "../../state/server";
+import { useThreadSelection } from "../../state/use-thread-selection";
 import { PullRequestGlyph } from "../pull-requests/pullRequestGlyphs";
 import {
   basename,
@@ -138,6 +142,17 @@ function useThreadGitControlModel(props: ThreadGitMenuProps) {
   );
   const threadId = props.threadId;
   const { gitStatus, gitOperationLabel, onPull, onRunAction } = props;
+  const { selectedThreadProject } = useThreadSelection();
+  const serverConfig = useAtomValue(
+    serverEnvironment.configValueAtom(
+      environmentId ? EnvironmentId.make(String(environmentId)) : null,
+    ),
+  );
+  const gitChangeRequestWorkflow =
+    selectedThreadProject && serverConfig
+      ? resolveProjectSettings(serverConfig.settings, selectedThreadProject.id).settings
+          .gitChangeRequestWorkflow
+      : "pull-request";
 
   const currentBranchLabel = gitStatus?.refName ?? props.currentBranch ?? gt("Detached HEAD");
   const busy = gitOperationLabel !== null;
@@ -154,7 +169,14 @@ function useThreadGitControlModel(props: ThreadGitMenuProps) {
         hint: gt("This workspace is not a git repository."),
       };
     }
-    const action = resolveQuickAction(gitStatus, busy, isDefaultRef, hasPrimaryRemote, messages);
+    const action = resolveQuickAction(
+      gitStatus,
+      busy,
+      isDefaultRef,
+      hasPrimaryRemote,
+      messages,
+      gitChangeRequestWorkflow,
+    );
     return !canWriteSourceControl && (action.kind === "run_pull" || action.kind === "run_action")
       ? {
           ...action,

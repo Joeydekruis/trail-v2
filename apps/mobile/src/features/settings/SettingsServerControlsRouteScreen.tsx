@@ -10,6 +10,7 @@ import {
   type ServerSettings,
   type ServerSettingsPatch,
   type ThreadEnvMode,
+  type GitChangeRequestWorkflow,
   type WorktreeSubmodules,
   PROJECT_SCOPED_SERVER_SETTING_KEYS,
   type ProjectScopedServerSettingKey,
@@ -64,7 +65,7 @@ const PAGE_PROJECT_KEYS: Record<SettingsPage, readonly ProjectScopedServerSettin
     "sidebarAutoSettleOnMerge",
     "sidebarAutoSettleAfterDays",
   ],
-  "source-control": ["defaultAutoPull", "removeAgentCreditsOnMerge"],
+  "source-control": ["defaultAutoPull", "gitChangeRequestWorkflow", "removeAgentCreditsOnMerge"],
   worktrees: [
     "newWorktreesStartFromOrigin",
     "worktreeSubmodules",
@@ -74,6 +75,23 @@ const PAGE_PROJECT_KEYS: Record<SettingsPage, readonly ProjectScopedServerSettin
   ],
   maintenance: ["continueThreadsAfterServerUpdate"],
 };
+
+const GIT_CHANGE_REQUEST_WORKFLOW_CHOICES: ReadonlyArray<{
+  readonly mode: GitChangeRequestWorkflow;
+  readonly label: string;
+  readonly description: string;
+}> = [
+  {
+    mode: "pull-request",
+    label: msg("Pull request"),
+    description: msg("Commit, push, and create PR on feature refs."),
+  },
+  {
+    mode: "direct-push",
+    label: msg("Direct push"),
+    description: msg("Commit and push only; no create-PR actions."),
+  },
+];
 
 const SUBMODULE_CHOICES: ReadonlyArray<{
   readonly mode: WorktreeSubmodules | null;
@@ -447,6 +465,30 @@ function ServerSettingsDetail(props: { readonly page: SettingsPage }) {
                     disabled={disabledFor("defaultAutoPull")}
                     onValueChange={(value) => write({ defaultAutoPull: value })}
                   />
+                </SettingsSection>
+                <SettingsSection
+                  title={gt("Thread git actions")}
+                  footer={managed("gitChangeRequestWorkflow")}
+                  trailing={
+                    pendingWrites === 0 && isMixed("gitChangeRequestWorkflow") ? (
+                      <MixedValuesLabel projectSelected={projectSelected} />
+                    ) : null
+                  }
+                >
+                  {GIT_CHANGE_REQUEST_WORKFLOW_CHOICES.map((choice, index) => (
+                    <SettingsChoiceRow
+                      key={choice.mode}
+                      label={m(choice.label)}
+                      description={m(choice.description)}
+                      selected={
+                        !isMixed("gitChangeRequestWorkflow") &&
+                        uniform("gitChangeRequestWorkflow") === choice.mode
+                      }
+                      separated={index > 0}
+                      disabled={disabledFor("gitChangeRequestWorkflow")}
+                      onPress={() => write({ gitChangeRequestWorkflow: choice.mode })}
+                    />
+                  ))}
                 </SettingsSection>
                 <SettingsSection title={gt("Clones")}>
                   <SettingsSwitchRow

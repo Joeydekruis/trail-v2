@@ -1094,6 +1094,10 @@ const SourceControlWritingStyleSetting = Schema.Union([
 export const BranchNamingMode = Schema.Literals(["static", "semantic", "custom"]);
 export type BranchNamingMode = typeof BranchNamingMode.Type;
 
+/** Whether thread git quick actions stack pull requests or stop at commit and push. */
+export const GitChangeRequestWorkflow = Schema.Literals(["pull-request", "direct-push"]);
+export type GitChangeRequestWorkflow = typeof GitChangeRequestWorkflow.Type;
+
 export interface BranchNamingOptions {
   mode: BranchNamingMode;
   prefix: string;
@@ -1188,6 +1192,7 @@ export const PROJECT_SCOPED_SERVER_SETTING_KEYS = [
   "newWorktreesStartFromOrigin",
   "worktreeSubmodules",
   "defaultAutoPull",
+  "gitChangeRequestWorkflow",
   "defaultProjectScripts",
   "enableAgentBrowserAccess",
   "enableAgentDeviceAccess",
@@ -1230,6 +1235,7 @@ export const ProjectSettingsOverrides = Schema.Struct({
   newWorktreesStartFromOrigin: Schema.optionalKey(Schema.Boolean),
   worktreeSubmodules: ForwardCompatibleOptional(WorktreeSubmodules),
   defaultAutoPull: Schema.optionalKey(Schema.Boolean),
+  gitChangeRequestWorkflow: Schema.optionalKey(GitChangeRequestWorkflow),
   defaultProjectScripts: Schema.optionalKey(Schema.Array(ProjectScript)),
   enableAgentBrowserAccess: Schema.optionalKey(Schema.Boolean),
   enableAgentDeviceAccess: Schema.optionalKey(Schema.Boolean),
@@ -1436,6 +1442,9 @@ export const ServerSettings = Schema.Struct({
     Schema.withDecodingDefault(Effect.succeed({})),
   ),
   defaultAutoPull: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
+  gitChangeRequestWorkflow: GitChangeRequestWorkflow.pipe(
+    Schema.withDecodingDefault(Effect.succeed("pull-request" as const)),
+  ),
   defaultProjectScripts: Schema.Array(ProjectScript).pipe(
     Schema.withDecodingDefault(Effect.succeed([])),
   ),
@@ -1468,7 +1477,9 @@ export const ServerSettings = Schema.Struct({
     Schema.withDecodingDefault(Effect.succeed(false)),
   ),
   // TRAIL-PATCH: unset at environment scope; per-project overrides set the active palette
-  trailAppearanceThemeId: DefaultThemePreference.pipe(Schema.withDecodingDefault(Effect.succeed(""))),
+  trailAppearanceThemeId: DefaultThemePreference.pipe(
+    Schema.withDecodingDefault(Effect.succeed("")),
+  ),
   /** Enabling the Device panel must not grant providers device control. */
   enableDeviceSupport: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
   deviceOnboardingCompleted: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
@@ -1901,6 +1912,7 @@ export const ServerSettingsPatch = Schema.Struct({
     Schema.Record(ProjectId, Schema.NullOr(Schema.Boolean)),
   ),
   defaultAutoPull: Schema.optionalKey(Schema.Boolean),
+  gitChangeRequestWorkflow: Schema.optionalKey(GitChangeRequestWorkflow),
   defaultProjectScripts: Schema.optionalKey(Schema.Array(ProjectScript)),
   projectScriptOverrides: Schema.optionalKey(
     Schema.Record(ProjectId, Schema.NullOr(Schema.Array(ProjectScript))),

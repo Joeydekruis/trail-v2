@@ -27,6 +27,7 @@ import type {
 } from "@t3tools/contracts";
 import { useNavigate } from "@tanstack/react-router";
 import * as Option from "effect/Option";
+import { resolveProjectSettings } from "@t3tools/shared/projectSettings";
 import { memo, useEffect, useEffectEvent, useId, useRef, useState } from "react";
 import { useDeadlinePassed } from "../hooks/useDeadline";
 import { useNowSecond } from "../hooks/useNowSecond";
@@ -1135,12 +1136,17 @@ function CheckoutGitActionsControl({
     RUNNING_SOURCE_CONTROL_ACTIONS,
   );
   const isDefaultRef = gitStatusForActions?.isDefaultRef ?? false;
+  const gitChangeRequestWorkflow = serverConfig?.settings
+    ? resolveProjectSettings(serverConfig.settings, owner?.projectId ?? null).settings
+        .gitChangeRequestWorkflow
+    : "pull-request";
 
   const gitActionMenuItems = buildMenuItems(
     gitStatusForActions,
     isGitActionRunning,
     hasPrimaryRemote,
     messages,
+    gitChangeRequestWorkflow,
   );
   const quickAction = resolveQuickAction(
     gitStatusForActions,
@@ -1148,6 +1154,7 @@ function CheckoutGitActionsControl({
     isDefaultRef,
     hasPrimaryRemote,
     messages,
+    gitChangeRequestWorkflow,
   );
   const quickActionDisabledReason = !canWriteSourceControl
     ? gt("This connection cannot change source control.")
@@ -2178,7 +2185,9 @@ export default function ThreadGitActionsControl({
       target={gitCwd === null ? null : { key: gitCwd, cwd: gitCwd, name }}
       threadRef={activeThreadRef}
       owner={{
-        ...(activeServerThread ? { threadId: activeServerThread.id } : {}),
+        ...(activeServerThread
+          ? { threadId: activeServerThread.id, projectId: activeServerThread.projectId }
+          : {}),
         ...(activeDraftThread ? { projectId: activeDraftThread.projectId } : {}),
       }}
       branchFollower={{

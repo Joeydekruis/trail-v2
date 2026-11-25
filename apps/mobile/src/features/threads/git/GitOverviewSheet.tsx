@@ -7,6 +7,7 @@ import {
   requiresDefaultBranchConfirmation,
 } from "@t3tools/client-runtime/state/vcs";
 import type { ThreadRepositorySection } from "@t3tools/client-runtime/state/thread-repositories";
+import { resolveProjectSettings } from "@t3tools/shared/projectSettings";
 import { EnvironmentId, ThreadId } from "@t3tools/contracts";
 import { sourceControlClients } from "@t3tools/client-runtime/source-control-clients";
 import { changeRequestTermKind } from "../../../lib/changeRequestTerm";
@@ -45,7 +46,9 @@ import { useThreadSelection } from "../../../state/use-thread-selection";
 import { useSelectedThreadGitActions } from "../../../state/use-selected-thread-git-actions";
 import { useSelectedThreadGitState } from "../../../state/use-selected-thread-git-state";
 import { useSelectedThreadWorktree } from "../../../state/use-selected-thread-worktree";
+import { serverEnvironment } from "../../../state/server";
 import { vcsEnvironment } from "../../../state/vcs";
+import { useAtomValue } from "@effect/atom-react";
 import { menuItemIconName, statusSummary } from "./gitSheetComponents";
 import { ThreadRepositoryRows } from "./ThreadRepositoryRows";
 import {
@@ -171,8 +174,16 @@ function GitOverviewSheetContent(props: GitOverviewSheetProps) {
   const busy = gitOperationLabel !== null;
   const hasPrimaryRemote = gitStatus.data?.hasPrimaryRemote ?? false;
   const isDefaultRef = gitStatus.data?.isDefaultRef ?? false;
+  const serverConfig = useAtomValue(serverEnvironment.configValueAtom(environmentId));
+  const gitChangeRequestWorkflow =
+    selectedThreadProject && serverConfig
+      ? resolveProjectSettings(serverConfig.settings, selectedThreadProject.id).settings
+          .gitChangeRequestWorkflow
+      : "pull-request";
 
-  const menuItems = isRepo ? buildMenuItems(gitStatus.data, busy, hasPrimaryRemote, m) : [];
+  const menuItems = isRepo
+    ? buildMenuItems(gitStatus.data, busy, hasPrimaryRemote, m, gitChangeRequestWorkflow)
+    : [];
 
   const sheetMenuItems = menuItems.map((item) => ({
     item: {

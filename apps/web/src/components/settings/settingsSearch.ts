@@ -1225,6 +1225,15 @@ export const SETTINGS_SEARCH_ITEMS = [
     scope: "project-defaults",
     searchTerms: [msg("auto pull default branch current checkout fast forward upstream")],
   },
+  {
+    id: "git-change-request-workflow",
+    title: msg("Thread git actions"),
+    to: "/settings/source-control",
+    scope: "project-defaults",
+    searchTerms: [
+      msg("direct push commit without pull request create pr workflow development branch"),
+    ],
+  },
   // TRAIL-PATCH: per-project theme (Joeydekruis/trail-v2)
   {
     id: "trail-project-theme",

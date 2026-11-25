@@ -89,6 +89,15 @@ describe("when: ref is clean, up to date, and has no open PR", () => {
     assert.equal(pushDisabledReason(dirtyFeature), "No local commits to push.");
   });
 
+  it("hides create-PR actions when the workflow is direct push", () => {
+    const dirtyFeature = status({ hasWorkingTreeChanges: true });
+    assert.deepInclude(resolveQuickAction(dirtyFeature, false, false, true, undefined, "direct-push"), {
+      label: "Commit & push",
+      action: "commit_push",
+    });
+    assert.equal(buildMenuItems(dirtyFeature, false, true, undefined, "direct-push").length, 2);
+  });
+
   it("offers the actions menu only when something in it is usable", () => {
     const hasContent = (
       gitStatus: VcsStatusResult,

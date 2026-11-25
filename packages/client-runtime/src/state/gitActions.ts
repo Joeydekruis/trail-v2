@@ -1,4 +1,5 @@
 import type {
+  GitChangeRequestWorkflow,
   GitRunStackedActionInput,
   GitStackedAction,
   VcsStatusResult,
@@ -45,6 +46,10 @@ export type GitActionRequestInput = Pick<
   "action" | "commitMessage" | "featureBranch" | "filePaths"
 >;
 
+export function isDirectPushGitWorkflow(workflow: GitChangeRequestWorkflow | undefined): boolean {
+  return (workflow ?? "pull-request") === "direct-push";
+}
+
 export function changeRequestTerminologyFor(
   gitStatus: VcsStatusResult | null,
 ): ChangeRequestTerminology {
@@ -56,9 +61,11 @@ export function buildMenuItems(
   isBusy: boolean,
   hasOriginRemote = true,
   resolve: MFunctionType = mFallback,
+  changeRequestWorkflow: GitChangeRequestWorkflow = "pull-request",
 ): GitActionMenuItem[] {
   if (!gitStatus) return [];
   const terminology = changeRequestTerminologyFor(gitStatus);
+  const directPush = isDirectPushGitWorkflow(changeRequestWorkflow);
 
   const hasBranch = gitStatus.refName !== null;
   const hasChanges = gitStatus.hasWorkingTreeChanges;
@@ -82,23 +89,30 @@ export function buildMenuItems(
     (gitStatus.hasUpstream || canPushWithoutUpstream);
   const canOpenPr = !isBusy && hasOpenPr;
 
+  const commitItem: GitActionMenuItem = {
+    id: "commit",
+    label: resolve(msg("Commit", { $context: "verb, git action" })),
+    disabled: !canCommit,
+    icon: "commit",
+    kind: "open_dialog",
+    dialogAction: "commit",
+  };
+  const pushItem: GitActionMenuItem = {
+    id: "push",
+    label: resolve(msg("Push", { $context: "verb, git action" })),
+    disabled: !canPush,
+    icon: "push",
+    kind: "open_dialog",
+    dialogAction: "push",
+  };
+
+  if (directPush) {
+    return [commitItem, pushItem];
+  }
+
   return [
-    {
-      id: "commit",
-      label: resolve(msg("Commit", { $context: "verb, git action" })),
-      disabled: !canCommit,
-      icon: "commit",
-      kind: "open_dialog",
-      dialogAction: "commit",
-    },
-    {
-      id: "push",
-      label: resolve(msg("Push", { $context: "verb, git action" })),
-      disabled: !canPush,
-      icon: "push",
-      kind: "open_dialog",
-      dialogAction: "push",
-    },
+    commitItem,
+    pushItem,
     hasOpenPr
       ? {
           id: "pr",
@@ -124,7 +138,9 @@ export function resolveQuickAction(
   isDefaultBranch = false,
   hasOriginRemote = true,
   resolve: MFunctionType = mFallback,
+  changeRequestWorkflow: GitChangeRequestWorkflow = "pull-request",
 ): GitQuickAction {
+  const directPush = isDirectPushGitWorkflow(changeRequestWorkflow);
   if (isBusy) {
     return {
       label: resolve(msg("Commit", { $context: "verb, git action" })),
@@ -178,7 +194,7 @@ export function resolveQuickAction(
         action: "commit",
       };
     }
-    if (hasOpenPr || isDefaultBranch) {
+    if (hasOpenPr || isDefaultBranch || directPush) {
       return {
         label: resolve(msg("Commit & push")),
         disabled: false,
@@ -233,7 +249,7 @@ export function resolveQuickAction(
         hint: resolve(msg("No local commits to push.")),
       };
     }
-    if (hasOpenPr || isDefaultBranch) {
+    if (hasOpenPr || isDefaultBranch || directPush) {
       return {
         label: resolve(msg("Push", { $context: "verb, git action" })),
         disabled: false,
@@ -267,7 +283,7 @@ export function resolveQuickAction(
   }
 
   if (isAhead) {
-    if (hasOpenPr || isDefaultBranch) {
+    if (hasOpenPr || isDefaultBranch || directPush) {
       return {
         label: resolve(msg("Push", { $context: "verb, git action" })),
         disabled: false,
@@ -291,7 +307,7 @@ export function resolveQuickAction(
     };
   }
 
-  if (hasDefaultBranchDelta && !isDefaultBranch) {
+  if (hasDefaultBranchDelta && !isDefaultBranch && !directPush) {
     return {
       label: resolve(msg("Create {shortLabel}", { shortLabel: terminology.shortLabel })),
       disabled: false,

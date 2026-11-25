@@ -14,6 +14,7 @@ import {
 } from "../../components/ui/sidebar";
 
 import { resolveSidebarTrailNav, type SidebarTrailNavId } from "./sidebarTrailNav.logic";
+import { useTrailSidebarOpenIssueCount } from "./useTrailSidebarOpenIssueCount";
 
 const NAV_ITEMS: ReadonlyArray<{
   id: SidebarTrailNavId;
@@ -29,6 +30,7 @@ export function SidebarTrailNav() {
   const { isMobile, setOpenMobile } = useSidebar();
   const pathname = useLocation({ select: (location) => location.pathname });
   const active = resolveSidebarTrailNav(pathname);
+  const openIssueCount = useTrailSidebarOpenIssueCount();
 
   const labels: Record<SidebarTrailNavId, string> = {
     dashboard: gt("Dashboard", { $context: "Trail sidebar nav" }),
@@ -68,6 +70,11 @@ export function SidebarTrailNav() {
               >
                 {item.icon}
                 <span>{labels[item.id]}</span>
+                {item.id === "issues" && openIssueCount !== null ? (
+                  <span data-trail-sidebar-issues-count="" aria-hidden>
+                    {openIssueCount}
+                  </span>
+                ) : null}
               </SidebarMenuButton>
             </SidebarMenuItem>
           );

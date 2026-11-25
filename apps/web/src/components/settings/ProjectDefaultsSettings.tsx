@@ -1,6 +1,7 @@
 import { managedRuntimeModeDenial } from "@t3tools/client-runtime/contract-labels";
 import {
   DEFAULT_SERVER_SETTINGS,
+  type GitChangeRequestWorkflow,
   type ModelSelection,
   type WorktreeSubmodules,
 } from "@t3tools/contracts";
@@ -49,6 +50,13 @@ import { TrailProjectBoardSettingsRow } from "~/trail/settings/TrailProjectBoard
 const WORKTREE_SUBMODULES_OPTIONS = ["recursive", "top-level", "none"] as const;
 function isWorktreeSubmodules(value: string | null): value is WorktreeSubmodules {
   return value !== null && (WORKTREE_SUBMODULES_OPTIONS as readonly string[]).includes(value);
+}
+
+const GIT_CHANGE_REQUEST_WORKFLOW_OPTIONS = ["pull-request", "direct-push"] as const;
+function isGitChangeRequestWorkflow(value: string | null): value is GitChangeRequestWorkflow {
+  return (
+    value !== null && (GIT_CHANGE_REQUEST_WORKFLOW_OPTIONS as readonly string[]).includes(value)
+  );
 }
 
 export function ProjectDefaultsSettings({ category }: { category: ProjectSettingsCategory }) {
@@ -111,6 +119,7 @@ export function ProjectDefaultsSettings({ category }: { category: ProjectSetting
   const PermissionIcon = runtimeModeConfig[settings.defaultRuntimeMode].icon;
   const mixedWorkspace = useScopedSettingsMixed(["defaultThreadEnvMode"]);
   const mixedAutoPull = useScopedSettingsMixed(["defaultAutoPull"]);
+  const mixedGitWorkflow = useScopedSettingsMixed(["gitChangeRequestWorkflow"]);
   const mixedAgentCredits = useScopedSettingsMixed(["removeAgentCreditsOnMerge"]);
   const mixedMergeMethod = useScopedSettingsMixed(["pullRequestMergeMethod"]);
   const modelSource = useScopedSettingSource(["defaultModelSelection"]);
@@ -475,6 +484,74 @@ export function ProjectDefaultsSettings({ category }: { category: ProjectSetting
                 checked={mixedAutoPull ? false : settings.defaultAutoPull}
                 onCheckedChange={(enabled) => updateSettings({ defaultAutoPull: enabled })}
               />
+            }
+          />
+          <SettingsRow
+            serverScoped
+            settingKeys={["gitChangeRequestWorkflow"]}
+            mixed={mixedGitWorkflow}
+            {...searchableSetting("git-change-request-workflow")}
+            title={gt("Thread git actions")}
+            description={
+              isProjectScope
+                ? gt(
+                    "Direct push keeps thread git actions at commit and push. Pull request includes create-PR steps on feature refs.",
+                  )
+                : gt(
+                    "Default for new projects: direct push or pull request stacked actions in thread git controls.",
+                  )
+            }
+            resetAction={
+              settings.gitChangeRequestWorkflow !==
+              DEFAULT_SERVER_SETTINGS.gitChangeRequestWorkflow ? (
+                <SettingResetButton
+                  ariaLabel={gt("Reset thread git actions to default")}
+                  tooltip={gt("Use pull request workflow")}
+                  onClick={() =>
+                    updateSettings({
+                      gitChangeRequestWorkflow: DEFAULT_SERVER_SETTINGS.gitChangeRequestWorkflow,
+                    })
+                  }
+                />
+              ) : null
+            }
+            control={
+              <Select
+                value={mixedGitWorkflow ? null : settings.gitChangeRequestWorkflow}
+                onValueChange={(value) => {
+                  if (isGitChangeRequestWorkflow(value)) {
+                    updateSettings({ gitChangeRequestWorkflow: value });
+                  }
+                }}
+              >
+                <SelectTrigger size="sm" aria-label={gt("Thread git actions")}>
+                  <SelectValue>
+                    {mixedGitWorkflow
+                      ? gt("Mixed", { $context: "values differ across targets" })
+                      : settings.gitChangeRequestWorkflow === "direct-push"
+                        ? gt("Direct push")
+                        : gt("Pull request")}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectPopup align="end" alignItemWithTrigger={false}>
+                  <SelectItem value="pull-request">
+                    <div className="grid gap-0.5">
+                      <span className="font-medium">{gt("Pull request")}</span>
+                      <span className="text-xs leading-4 text-muted-foreground">
+                        {gt("Commit, push, and create PR on feature refs.")}
+                      </span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="direct-push">
+                    <div className="grid gap-0.5">
+                      <span className="font-medium">{gt("Direct push")}</span>
+                      <span className="text-xs leading-4 text-muted-foreground">
+                        {gt("Commit and push only; no create-PR actions.")}
+                      </span>
+                    </div>
+                  </SelectItem>
+                </SelectPopup>
+              </Select>
             }
           />
           <SettingsRow

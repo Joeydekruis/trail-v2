@@ -13,12 +13,14 @@ import { changeRequestTermKind } from "./pullRequest/changeRequestTerm";
 import type { ChangeRequestTerminology } from "@t3tools/client-runtime/source-control-clients";
 import {
   changeRequestTerminologyFor,
+  isDirectPushGitWorkflow,
   type DefaultBranchActionDialogCopy,
   type DefaultBranchConfirmableAction,
   type GitActionIconName,
   type GitDialogAction,
   vcsActionLabelText,
 } from "@t3tools/client-runtime/state/vcs";
+import type { GitChangeRequestWorkflow } from "@t3tools/contracts";
 
 export {
   requiresDefaultBranchConfirmation,
@@ -126,9 +128,11 @@ export function buildMenuItems(
   isBusy: boolean,
   hasPrimaryRemote = true,
   resolve: MessageResolver = m,
+  changeRequestWorkflow: GitChangeRequestWorkflow = "pull-request",
 ): GitActionMenuItem[] {
   if (!gitStatus) return [];
   const terminology = changeRequestTerminologyFor(gitStatus);
+  const directPush = isDirectPushGitWorkflow(changeRequestWorkflow);
 
   const hasBranch = gitStatus.refName !== null;
   const hasChanges = gitStatus.hasWorkingTreeChanges;
@@ -173,7 +177,7 @@ export function buildMenuItems(
     dialogAction: "push",
   };
 
-  if (hasOpenPr) {
+  if (hasOpenPr || directPush) {
     return [commitItem, pushItem];
   }
 
@@ -301,7 +305,9 @@ export function resolveQuickAction(
   isDefaultRef = false,
   hasPrimaryRemote = true,
   resolve: MessageResolver = m,
+  changeRequestWorkflow: GitChangeRequestWorkflow = "pull-request",
 ): GitQuickAction {
+  const directPush = isDirectPushGitWorkflow(changeRequestWorkflow);
   if (isBusy) {
     return {
       label: resolve(msg("Commit", { $context: "verb, git action" })),
@@ -352,7 +358,7 @@ export function resolveQuickAction(
         action: "commit",
       };
     }
-    if (hasOpenPr || isDefaultRef) {
+    if (hasOpenPr || isDefaultRef || directPush) {
       return {
         label: resolve(msg("Commit & push")),
         disabled: false,
@@ -396,7 +402,7 @@ export function resolveQuickAction(
         hint: resolve(msg("No local commits to push.")),
       };
     }
-    if (hasOpenPr || isDefaultRef) {
+    if (hasOpenPr || isDefaultRef || directPush) {
       return {
         label: resolve(msg("Push", { $context: "verb, git action" })),
         disabled: false,
@@ -434,7 +440,7 @@ export function resolveQuickAction(
   }
 
   if (isAhead) {
-    if (hasOpenPr || isDefaultRef) {
+    if (hasOpenPr || isDefaultRef || directPush) {
       return {
         label: resolve(msg("Push", { $context: "verb, git action" })),
         disabled: false,
@@ -463,7 +469,7 @@ export function resolveQuickAction(
     };
   }
 
-  if (hasDefaultBranchDelta && !isDefaultRef) {
+  if (hasDefaultBranchDelta && !isDefaultRef && !directPush) {
     return {
       label: resolve(
         msg("Create {term, select, mr {MR} cr {change request} other {PR}}", {

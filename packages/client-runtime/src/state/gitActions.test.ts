@@ -78,6 +78,25 @@ describe("git action copy", () => {
     ).toBe("No local commits to include in an MR.");
   });
 
+  it("uses commit and push only when the project workflow is direct push", () => {
+    const dirtyFeatureBranch = status({ hasWorkingTreeChanges: true, isDefaultRef: false });
+    expect(
+      resolveQuickAction(dirtyFeatureBranch, false, false, true, undefined, "direct-push"),
+    ).toMatchObject({
+      label: "Commit & push",
+      action: "commit_push",
+    });
+    expect(buildMenuItems(dirtyFeatureBranch, false, true, undefined, "direct-push")).toHaveLength(
+      2,
+    );
+    const aheadFeatureBranch = status({ aheadCount: 1, isDefaultRef: false });
+    expect(
+      resolveQuickAction(aheadFeatureBranch, false, false, true, undefined, "direct-push"),
+    ).toMatchObject({
+      action: "push",
+    });
+  });
+
   it("offers creating a PR after the feature branch has been fully pushed", () => {
     const pushed = status({ aheadCount: 0, behindCount: 0, aheadOfDefaultCount: 1 });
     expect(resolveQuickAction(pushed, false)).toMatchObject({
