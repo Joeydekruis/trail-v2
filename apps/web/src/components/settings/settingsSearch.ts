@@ -573,6 +573,17 @@ export const SETTINGS_SEARCH_ITEMS = [
       msg("beta alpha simlock callstack simulator emulator ios android pool lease gateway"),
     ],
   },
+  // TRAIL-PATCH: Tencil install guidance in Labs (Joeydekruis/trail-v2)
+  {
+    id: "tencil",
+    title: msg("Tencil"),
+    to: "/settings/labs",
+    searchTerms: [
+      msg(
+        "beta point click ui overlay browser review visual feedback npx install vite nextjs daemon",
+      ),
+    ],
+  },
   {
     id: "worktree-fast-checkout",
     title: msg("Fast worktree checkout"),

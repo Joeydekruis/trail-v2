@@ -1,6 +1,7 @@
 import * as WorktreeBranchSync from "./WorktreeBranchSync.ts";
 import * as GuestShareService from "../guest/GuestShareService.ts";
 import * as TrailFeedbackService from "../trail/feedback/FeedbackService.ts";
+import * as DesignService from "../trail/design/DesignService.ts";
 import * as UsageLimitRecoveryWorker from "./UsageLimitRecoveryWorker.ts";
 import * as Scheduler from "../scheduling/Scheduler.ts";
 import * as Layer from "effect/Layer";
@@ -424,6 +425,7 @@ export const layerProduction = Layer.mergeAll(
   GuestShareService.layer.pipe(
     Layer.provide(Layer.merge(layerOrchestratorProvided, layerCommandOutputHubProvided)),
   ),
+  DesignService.layer.pipe(Layer.provide(layerProjectService)),
   // TRAIL-PATCH: Chrome extension feedback batches land as composer preview annotations.
   TrailFeedbackService.layer.pipe(
     Layer.provide(

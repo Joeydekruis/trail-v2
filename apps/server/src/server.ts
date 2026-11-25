@@ -188,6 +188,7 @@ import * as CloudHttp from "./cloud/http.ts";
 import * as GuestHttp from "./guest/http.ts";
 // TRAIL-PATCH: Trail Feedback HTTP ingress for the Chrome extension.
 import * as TrailFeedbackHttp from "./trail/feedback/http.ts";
+import * as TrailDesignHttp from "./trail/design/http.ts";
 import * as LinkThreadHttp from "./peer/linkThreadHttp.ts";
 import * as CloudLink from "./cloud/CloudLink.ts";
 import * as ConnectReachability from "./cloud/ConnectReachability.ts";
@@ -891,6 +892,7 @@ const layerMakeRoutes = Layer.mergeAll(
     ServerHttp.layerAttachmentUploadRoute,
     GuestHttp.layer,
     TrailFeedbackHttp.layer,
+    TrailDesignHttp.layer,
     LinkThreadHttp.layer,
     DeviceHubProxy.layer,
     ServerBrowserStream.routeLayer,

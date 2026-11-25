@@ -96,6 +96,9 @@ import * as HtmlHandlers from "./toolkits/html/handlers.ts";
 import { MessageToolkit } from "./toolkits/message/tools.ts";
 import * as MessageHandlers from "./toolkits/message/handlers.ts";
 import { HtmlPreviewTool, HtmlPreviewToolkit, HtmlRenderToolkit } from "./toolkits/html/tools.ts";
+import * as DesignHandlers from "./toolkits/design/handlers.ts";
+import { DesignToolkit } from "./toolkits/design/tools.ts";
+import * as DesignService from "../trail/design/DesignService.ts";
 import { MCP_HTTP_PATH } from "../httpCors.ts";
 import { requestUrl } from "../requestUrl.ts";
 
@@ -1307,6 +1310,12 @@ const layerWorktreeToolkitRegistration = toolkitRegistration(
   WorktreeHandlers.layer,
 ).pipe(Layer.provide(WorktreeMcpService.layer));
 
+// TRAIL-PATCH: MCP tools for Claude Design handoff into docs/design/.
+const layerDesignToolkitRegistration = toolkitRegistration(
+  DesignToolkit,
+  DesignHandlers.layer,
+).pipe(Layer.provide(DesignService.layer));
+
 const layerPreviewControlsRegistration = toolkitRegistration(
   PreviewControlsToolkit,
   PreviewControlsHandlers.layer,
@@ -1390,6 +1399,7 @@ export const layerTools = Layer.mergeAll(
   layerThemeToolkit,
   layerPreviewControlsRegistration,
   layerWorktreeToolkitRegistration,
+  layerDesignToolkitRegistration,
   layerPullRequestsToolkit,
   layerIssuesToolkit,
   layerDeviceToolkit,

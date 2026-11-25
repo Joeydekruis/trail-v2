@@ -13,7 +13,6 @@ import {
   type ThemeAppearance,
   type ThemeDefinition,
   TRAIL_THEME,
-  getThemeCardDefinition,
 } from "../../themePalette";
 
 const THEME_PREVIEW_ROLES = [

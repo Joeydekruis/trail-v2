@@ -1153,6 +1153,9 @@ importers:
       '@t3tools/trail-brand':
         specifier: workspace:*
         version: link:../../packages/trail-brand
+      '@t3tools/trail-contracts':
+        specifier: workspace:*
+        version: link:../../packages/trail-contracts
       '@tanstack/react-pacer':
         specifier: ^0.19.4
         version: 0.19.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

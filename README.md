@@ -40,6 +40,7 @@ Trail would not exist without **[T3 Code](https://github.com/pingdotgg/t3code)**
 | **Board**        | Five columns from `status:*` labels; issue drawer; drag to change status         |
 | **Dashboard**    | Latest threads, board activity, snapshot — mostly aggregation over existing data |
 | **Files**        | `docs/` in the repo, with T3’s file preview where possible                       |
+| **Design**       | Claude Design → `docs/design/` via MCP (`trail_save_design`); `/design` preview |
 | **Project rail** | Switch projects with per-project accent color (optional after board v1)          |
 
 Everything else in the stack — threads, worktrees, diffs, PRs, subagents, terminal — stays T3’s.

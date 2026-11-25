@@ -28,7 +28,46 @@ export function LabsSettingsPanel() {
         <SimlockHostsRow />
         <FastWorktreeCheckoutRow />
       </SettingsSection>
+      {/* TRAIL-PATCH: Tencil install guidance in Labs (Joeydekruis/trail-v2) */}
+      <SettingsSection title={gt("Tencil")}>
+        <TencilRow />
+      </SettingsSection>
     </SettingsPageContainer>
+  );
+}
+
+function TencilRow() {
+  const searchableSetting = useSearchableSetting();
+  return (
+    <SettingsRow
+      {...searchableSetting("tencil")}
+      description={
+        <T>
+          Point at elements on your running dev site and send changes to agents here. In your app
+          folder, run <code className="font-mono text-foreground">npx tencil</code> once (Node 22+).
+          The first run pairs with this app and starts the local daemon, then adds the dev
+          integration. Start your dev server and press C on the page. More on{" "}
+          <a
+            href="https://tencil.dev/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2"
+          >
+            tencil.dev
+          </a>
+          . T3 Code never installs Tencil.
+        </T>
+      }
+      control={
+        <Button
+          size="sm"
+          variant="outline"
+          render={<a href="https://tencil.dev/" target="_blank" rel="noreferrer noopener" />}
+        >
+          <T>Open tencil.dev</T>
+        </Button>
+      }
+    />
   );
 }
 

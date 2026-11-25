@@ -19,6 +19,7 @@ import {
 import { issueEnvironment } from "~/state/issues";
 import { useEnvironmentQuery } from "~/state/query";
 
+import { TrailIssueDesignLinks } from "../design/TrailIssueDesignLinks";
 import { TrailAcceptanceCriteria } from "./TrailAcceptanceCriteria";
 import { TrailIssueDetailActions } from "./TrailIssueDetailActions";
 import type { TrailIssueWorkActions } from "./useTrailIssueWork";
@@ -85,6 +86,7 @@ export function TrailIssueDrawer({
         {selection && reference ? (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-slot="sheet-panel">
             <TrailAcceptanceCriteria body={detailQuery.data?.body} />
+            <TrailIssueDesignLinks projectId={selection.projectId} issueKey={selection.key} />
             <div className="min-h-0 flex-1">
               <IssueDetailPanel
                 environmentId={selection.environmentId}

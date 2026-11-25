@@ -17,7 +17,9 @@ export function isSidebarUtilityPage(pathname: string) {
     // TRAIL-PATCH: Trail primary-nav pages — see PATCHES.md and github.com/Joeydekruis/trail-v2/issues/2
     pathname === "/board" ||
     pathname === "/files" ||
-    pathname === "/dashboard"
+    pathname === "/dashboard" ||
+    pathname === "/design" ||
+    pathname.startsWith("/design/")
   );
 }
 

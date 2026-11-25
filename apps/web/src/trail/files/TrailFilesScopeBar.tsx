@@ -1,5 +1,6 @@
 import { useGT, T } from "gt-react";
-import { CopyIcon, FolderGit2Icon, FolderIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { CopyIcon, FolderGit2Icon, FolderIcon, PaletteIcon } from "lucide-react";
 
 import { useCopyToClipboard } from "../../hooks/useCopyToClipboard";
 import { MiddleTruncate } from "../../components/ui/middle-truncate";
@@ -21,6 +22,11 @@ export function TrailFilesScopeBar({
   const gt = useGT();
   const scope = resolveTrailFilesScope({ cwd, worktreePath, branch, projectName });
   const { copyToClipboard, isCopied } = useCopyToClipboard<{ path: string }>();
+  const nearDesignDocs =
+    cwd.includes("/docs/design") ||
+    cwd.endsWith("/docs/design") ||
+    cwd.endsWith("/docs") ||
+    cwd.includes(`${scope.pathLabel}/docs/design`);
 
   return (
     <div
@@ -44,6 +50,15 @@ export function TrailFilesScopeBar({
             value={scope.pathLabel}
           />
         </div>
+        {nearDesignDocs ? (
+          <Link
+            to="/design"
+            className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-foreground"
+            aria-label={gt("Design library", { $context: "Trail files sidebar" })}
+          >
+            <PaletteIcon className="size-3.5" />
+          </Link>
+        ) : null}
         <Tooltip>
           <TooltipTrigger
             render={

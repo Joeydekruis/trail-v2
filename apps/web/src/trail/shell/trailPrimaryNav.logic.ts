@@ -14,6 +14,8 @@ export function isTrailUtilityPage(pathname: string): boolean {
     pathname === "/files" ||
     pathname.startsWith("/files/") ||
     pathname === "/dashboard" ||
-    pathname.startsWith("/dashboard/")
+    pathname.startsWith("/dashboard/") ||
+    pathname === "/design" ||
+    pathname.startsWith("/design/")
   );
 }

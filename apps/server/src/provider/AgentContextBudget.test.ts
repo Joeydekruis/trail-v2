@@ -44,6 +44,7 @@ import { ScheduledTaskService } from "../scheduledTasks/ScheduledTaskService.ts"
 import { SecretRequests } from "../secrets/SecretRequests.ts";
 import { ServerSettingsService } from "../serverSettings.ts";
 import { SourceControlRepositoryService } from "../sourceControl/SourceControlRepositoryService.ts";
+import * as DesignService from "../trail/design/DesignService.ts";
 import { GitVcsDriver } from "../vcs/GitVcsDriver.ts";
 import { VcsStatusBroadcaster } from "../vcs/VcsStatusBroadcaster.ts";
 import { buildCodexAdditionalContext } from "./CodexDeveloperInstructions.ts";
@@ -55,6 +56,7 @@ import budget from "./agentContextBudget.json" with { type: "json" };
 // Registration only stores tool definitions, so the handlers' services are never called.
 const toolHandlerServices = Layer.mergeAll(
   Layer.mock(AssetSigner)({}),
+  Layer.mock(DesignService.DesignService)({}),
   Layer.mock(DeviceService)({}),
   Layer.mock(DocumentText)({}),
   Layer.mock(EnvironmentThemeService)({}),

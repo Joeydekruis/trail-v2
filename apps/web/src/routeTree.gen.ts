@@ -24,6 +24,7 @@ import { Route as ChatPullRequestsRouteImport } from './routes/_chat.pull-reques
 import { Route as ChatNewRouteImport } from './routes/_chat.new'
 import { Route as ChatIssuesRouteImport } from './routes/_chat.issues'
 import { Route as ChatFilesRouteImport } from './routes/_chat.files'
+import { Route as ChatDesignRouteImport } from './routes/_chat.design'
 import { Route as ChatDashboardRouteImport } from './routes/_chat.dashboard'
 import { Route as ChatBoardRouteImport } from './routes/_chat.board'
 import { Route as ThreadsEnvironmentIdThreadIdRouteImport } from './routes/threads.$environmentId.$threadId'
@@ -130,6 +131,11 @@ const ChatIssuesRoute = ChatIssuesRouteImport.update({
 const ChatFilesRoute = ChatFilesRouteImport.update({
   id: '/files',
   path: '/files',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatDesignRoute = ChatDesignRouteImport.update({
+  id: '/design',
+  path: '/design',
   getParentRoute: () => ChatRoute,
 } as any)
 const ChatDashboardRoute = ChatDashboardRouteImport.update({
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof WelcomeRoute
   '/board': typeof ChatBoardRoute
   '/dashboard': typeof ChatDashboardRoute
+  '/design': typeof ChatDesignRoute
   '/files': typeof ChatFilesRoute
   '/issues': typeof ChatIssuesRoute
   '/new': typeof ChatNewRoute
@@ -365,6 +372,7 @@ export interface FileRoutesByTo {
   '/welcome': typeof WelcomeRoute
   '/board': typeof ChatBoardRoute
   '/dashboard': typeof ChatDashboardRoute
+  '/design': typeof ChatDesignRoute
   '/files': typeof ChatFilesRoute
   '/issues': typeof ChatIssuesRoute
   '/new': typeof ChatNewRoute
@@ -416,6 +424,7 @@ export interface FileRoutesById {
   '/welcome': typeof WelcomeRoute
   '/_chat/board': typeof ChatBoardRoute
   '/_chat/dashboard': typeof ChatDashboardRoute
+  '/_chat/design': typeof ChatDesignRoute
   '/_chat/files': typeof ChatFilesRoute
   '/_chat/issues': typeof ChatIssuesRoute
   '/_chat/new': typeof ChatNewRoute
@@ -468,6 +477,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/board'
     | '/dashboard'
+    | '/design'
     | '/files'
     | '/issues'
     | '/new'
@@ -516,6 +526,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/board'
     | '/dashboard'
+    | '/design'
     | '/files'
     | '/issues'
     | '/new'
@@ -566,6 +577,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/_chat/board'
     | '/_chat/dashboard'
+    | '/_chat/design'
     | '/_chat/files'
     | '/_chat/issues'
     | '/_chat/new'
@@ -724,6 +736,13 @@ declare module '@tanstack/react-router' {
       path: '/files'
       fullPath: '/files'
       preLoaderRoute: typeof ChatFilesRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/_chat/design': {
+      id: '/_chat/design'
+      path: '/design'
+      fullPath: '/design'
+      preLoaderRoute: typeof ChatDesignRouteImport
       parentRoute: typeof ChatRoute
     }
     '/_chat/dashboard': {
@@ -1027,6 +1046,7 @@ const ChatSettingsRouteWithChildren = ChatSettingsRoute._addFileChildren(
 interface ChatRouteChildren {
   ChatBoardRoute: typeof ChatBoardRoute
   ChatDashboardRoute: typeof ChatDashboardRoute
+  ChatDesignRoute: typeof ChatDesignRoute
   ChatFilesRoute: typeof ChatFilesRoute
   ChatIssuesRoute: typeof ChatIssuesRoute
   ChatNewRoute: typeof ChatNewRoute
@@ -1042,6 +1062,7 @@ interface ChatRouteChildren {
 const ChatRouteChildren: ChatRouteChildren = {
   ChatBoardRoute: ChatBoardRoute,
   ChatDashboardRoute: ChatDashboardRoute,
+  ChatDesignRoute: ChatDesignRoute,
   ChatFilesRoute: ChatFilesRoute,
   ChatIssuesRoute: ChatIssuesRoute,
   ChatNewRoute: ChatNewRoute,

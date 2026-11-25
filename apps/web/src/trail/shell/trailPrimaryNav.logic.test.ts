@@ -15,6 +15,7 @@ describe("trailPrimaryNav", () => {
     expect(isTrailUtilityPage("/board")).toBe(true);
     expect(isTrailUtilityPage("/files")).toBe(true);
     expect(isTrailUtilityPage("/dashboard")).toBe(true);
+    expect(isTrailUtilityPage("/design")).toBe(true);
     expect(isTrailUtilityPage("/issues")).toBe(false);
   });
 });
