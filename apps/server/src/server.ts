@@ -186,6 +186,8 @@ import * as EnvironmentAuth from "./auth/EnvironmentAuth.ts";
 import * as EnvironmentAuthPolicy from "./auth/EnvironmentAuthPolicy.ts";
 import * as CloudHttp from "./cloud/http.ts";
 import * as GuestHttp from "./guest/http.ts";
+// TRAIL-PATCH: Trail Feedback HTTP ingress for the Chrome extension.
+import * as TrailFeedbackHttp from "./trail/feedback/http.ts";
 import * as LinkThreadHttp from "./peer/linkThreadHttp.ts";
 import * as CloudLink from "./cloud/CloudLink.ts";
 import * as ConnectReachability from "./cloud/ConnectReachability.ts";
@@ -462,6 +464,7 @@ const layerIssueService = Layer.merge(IssueService.layer, IssueTrackerConnection
 
 // One instance serves MCP link calls and refreshes snapshots on thread events.
 const layerThreadIssueService = ThreadIssueService.layer;
+
 
 const layerGitManager = GitManager.layer.pipe(
   Layer.provide(Layer.merge(ProjectionStoreV2.layer, ProjectStore.layer)),
@@ -887,6 +890,7 @@ const layerMakeRoutes = Layer.mergeAll(
     ServerHttp.layerAssetRoute,
     ServerHttp.layerAttachmentUploadRoute,
     GuestHttp.layer,
+    TrailFeedbackHttp.layer,
     LinkThreadHttp.layer,
     DeviceHubProxy.layer,
     ServerBrowserStream.routeLayer,

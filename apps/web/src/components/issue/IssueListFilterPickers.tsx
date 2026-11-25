@@ -55,13 +55,15 @@ export function IssueFiltersMenu(props: {
   projects: ReadonlyArray<ProjectFaviconProject & { readonly id: ProjectId }>;
   hiddenProjects: ReadonlySet<string>;
   onHiddenProjects: (hidden: ReadonlyArray<readonly [EnvironmentId, ProjectId]>) => void;
+  showProjectFilter?: boolean;
 }) {
   const gt = useGT();
   const [open, setOpen] = useState(false);
+  const showProjectFilter = props.showProjectFilter ?? true;
   const count = [
     props.state !== "open",
     props.involvement !== "all",
-    props.hiddenProjects.size > 0,
+    showProjectFilter && props.hiddenProjects.size > 0,
     props.assignee,
     ...props.labels,
   ].filter(Boolean).length;
@@ -93,7 +95,7 @@ export function IssueFiltersMenu(props: {
           options={props.involvementOptions}
           onChange={props.onInvolvement}
         />
-        {props.projects.length > 0 || props.hiddenProjects.size > 0 ? (
+        {showProjectFilter && (props.projects.length > 0 || props.hiddenProjects.size > 0) ? (
           <MenuSub>
             <MenuSubTrigger>
               <FolderGit2Icon aria-hidden className="size-3.5" />

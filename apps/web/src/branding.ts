@@ -1,4 +1,5 @@
 import type { DesktopAppBranding } from "@t3tools/contracts";
+import { TRAIL_APP_BASE_NAME } from "@t3tools/trail-brand";
 import {
   formatAppDisplayName,
   resolveHostedAppChannelLabel,
@@ -19,7 +20,8 @@ const hostedAppChannel = import.meta.env.VITE_HOSTED_APP_CHANNEL?.trim().toLower
 export const HOSTED_APP_CHANNEL =
   hostedAppChannel === "latest" || hostedAppChannel === "nightly" ? hostedAppChannel : null;
 export const HOSTED_APP_CHANNEL_LABEL = resolveHostedAppChannelLabel(HOSTED_APP_CHANNEL);
-export const APP_BASE_NAME = injectedDesktopAppBranding?.baseName ?? "T3 Code";
+// TRAIL-PATCH: product name (Joeydekruis/trail-v2)
+export const APP_BASE_NAME = injectedDesktopAppBranding?.baseName ?? TRAIL_APP_BASE_NAME;
 export const APP_STAGE_LABEL =
   injectedDesktopAppBranding?.stageLabel ??
   resolveWebAppStageLabel({

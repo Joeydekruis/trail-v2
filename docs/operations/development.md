@@ -1,5 +1,23 @@
 # Development
 
+## Trail fork checkout
+
+This repository is [Joeydekruis/trail-v2](https://github.com/Joeydekruis/trail-v2), not the upstream T3 monorepo. Clone Trail, not `pingdotgg/t3code`, for Trail work:
+
+```sh
+git clone https://github.com/Joeydekruis/trail-v2.git
+cd trail-v2
+git remote add upstream https://github.com/pingdotgg/t3code.git
+git remote set-url --push upstream DISABLE
+gh repo set-default Joeydekruis/trail-v2
+```
+
+Worktree setup (`t3.json` → Setup Worktree) runs `scripts/ensure-trail-forge-default.ts` so new worktrees keep the same forge pin.
+
+**Pull requests and pushes stay on Trail.** With both `origin` and `upstream`, `gh` and T3's `pull_request_create` can otherwise default to `pingdotgg/t3code`. Full checklist: [trail-maintainer — Pull requests stay on Trail](./trail-maintainer.md#pull-requests-stay-on-trail).
+
+Skip the [Forge mirror](#forge-mirror-optional) section below unless you are hacking on stock T3 in a different clone.
+
 ## First checkout
 
 T3 Code uses [Vite+](https://viteplus.dev/guide/). Install its global `vp` command:
@@ -39,6 +57,8 @@ a new browser.
 Prefer a container? See [Dev container](../internals/devcontainer.md) for VS Code and Codespaces setup.
 
 ## Forge mirror (optional)
+
+**Trail:** Do not repoint `origin` at the TanStack mirror or open PRs to `pingdotgg/t3code`. This section is upstream T3 contributor docs only.
 
 GitHub is the source of truth. [source.tanstack.com/@pingdotgg/t3code](https://source.tanstack.com/@pingdotgg/t3code)
 is a two-way synced mirror built for many agents working at once. You never need it to contribute.

@@ -1,5 +1,9 @@
 # Contributing
 
+> **Trail fork ([Joeydekruis/trail-v2](https://github.com/Joeydekruis/trail-v2)):** Open pull requests **only** against this repository. Never open PRs to [pingdotgg/t3code](https://github.com/pingdotgg/t3code) from this tree. See [Pull requests stay on Trail](docs/operations/trail-maintainer.md#pull-requests-stay-on-trail).
+
+The text below is inherited from upstream T3 Code and describes **their** contribution policy, not Trail's day-to-day workflow.
+
 T3 Code is a project built by and for the community of agentic devs pushing the absolute limits of
 modern AI tools.
 

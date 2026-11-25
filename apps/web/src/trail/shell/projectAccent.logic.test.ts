@@ -25,8 +25,10 @@ describe("projectAccent", () => {
     );
   });
 
-  it("derives a single initial from the display name", () => {
-    expect(projectInitial("trail-v2")).toBe("T");
+  it("derives up to two initials from the display name", () => {
+    expect(projectInitial("Derisory Ventures")).toBe("DV");
+    expect(projectInitial("trail-v2")).toBe("TV");
+    expect(projectInitial("acme")).toBe("AC");
     expect(projectInitial("  ")).toBe("?");
   });
 });

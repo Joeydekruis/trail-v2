@@ -58,9 +58,21 @@ Worktrees share this local git config with the main checkout.
 
 ### Agents and humans
 
-- Open PRs with base **`Joeydekruis/trail-v2`** (`origin`), never `pingdotgg/t3code`.
-- Prefer T3 `pull_request_create` only after the mark above is set; if a tool still reports the wrong host, close that PR and recreate with `gh pr create --repo Joeydekruis/trail-v2`.
+- **Never open a PR on `pingdotgg/t3code`.** If one was created by mistake, close it on GitHub immediately and reopen on Trail only.
+- Open PRs with base **`Joeydekruis/trail-v2`** (`origin`) only. From the CLI use `vp run trail:pr:create` or `gh pr create --repo Joeydekruis/trail-v2` (never bare `gh pr create`).
+- Prefer T3 `pull_request_create` only after the mark above is set; if a tool still targets upstream, stop and run `vp run trail:forge:ensure`.
 - Do **not** run `gh repo set-default` against `pingdotgg/t3code` in this clone.
+
+### Enforcement (automatic)
+
+`vp i` and worktree setup run `scripts/ensure-trail-forge-default.ts`, which:
+
+- Pins `gh repo set-default` to `Joeydekruis/trail-v2` and `remote.origin.gh-resolved=base`
+- Clears `remote.upstream.gh-resolved` (otherwise PR tools prefer upstream)
+- Sets `remote.pushDefault` / `push.remote` to `origin` and disables `upstream` push
+- Installs **`scripts/hooks/pre-push`** via `core.hooksPath` — **`git push upstream` and any push URL containing `pingdotgg/t3code` are rejected**
+
+Re-run anytime: `vp run trail:forge:ensure`.
 
 ### Checklist
 

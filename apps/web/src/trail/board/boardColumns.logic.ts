@@ -43,8 +43,16 @@ export function nonStatusLabels<T extends BoardLabel>(labels: ReadonlyArray<T>):
   return labels.filter((label) => !isStatusLabelName(label.name));
 }
 
-/** Pick column; unmapped → backlog; multiple → most progressed. */
-export function assignBoardColumn(labels: ReadonlyArray<BoardLabel>): BoardColumnId {
+export type BoardIssueState = { readonly category: "open" | "closed" };
+
+/** Done column is GitHub closed; open issues use status:* labels only. */
+export function assignBoardColumn(
+  labels: ReadonlyArray<BoardLabel>,
+  state?: BoardIssueState,
+): BoardColumnId {
+  if (state?.category === "closed") {
+    return "done";
+  }
   let bestIndex = -1;
   for (const label of labels) {
     const slug = statusSlugFromLabelName(label.name);
@@ -54,12 +62,13 @@ export function assignBoardColumn(labels: ReadonlyArray<BoardLabel>): BoardColum
     const index = BOARD_COLUMN_IDS.indexOf(column);
     if (index > bestIndex) bestIndex = index;
   }
-  return bestIndex < 0 ? "backlog" : BOARD_COLUMN_IDS[bestIndex]!;
+  const column = bestIndex < 0 ? "backlog" : BOARD_COLUMN_IDS[bestIndex]!;
+  return column === "done" ? "review" : column;
 }
 
-export function groupIssuesByBoardColumn<T extends { readonly labels: ReadonlyArray<BoardLabel> }>(
-  issues: ReadonlyArray<T>,
-): Readonly<Record<BoardColumnId, ReadonlyArray<T>>> {
+export function groupIssuesByBoardColumn<
+  T extends { readonly labels: ReadonlyArray<BoardLabel>; readonly state: BoardIssueState },
+>(issues: ReadonlyArray<T>): Readonly<Record<BoardColumnId, ReadonlyArray<T>>> {
   const buckets: Record<BoardColumnId, T[]> = {
     backlog: [],
     todo: [],
@@ -68,9 +77,42 @@ export function groupIssuesByBoardColumn<T extends { readonly labels: ReadonlyAr
     done: [],
   };
   for (const issue of issues) {
-    buckets[assignBoardColumn(issue.labels)].push(issue);
+    buckets[assignBoardColumn(issue.labels, issue.state)].push(issue);
   }
   return buckets;
+}
+
+/** True when an open issue is in the in-progress column. */
+export function hasOpenInProgressIssue(
+  issues: ReadonlyArray<{
+    readonly labels: ReadonlyArray<BoardLabel>;
+    readonly state: BoardIssueState;
+  }>,
+): boolean {
+  return issues.some(
+    (issue) =>
+      issue.state.category === "open" &&
+      assignBoardColumn(issue.labels, issue.state) === "in-progress",
+  );
+}
+
+const STATUS_LABEL_FOR_COLUMN: Partial<Record<BoardColumnId, string>> = {
+  todo: "status:todo",
+  "in-progress": "status:in-progress",
+  review: "status:review",
+};
+
+/** Replace status:* labels; backlog clears them; done leaves labels unchanged (close on GitHub). */
+export function mergeIssueLabelsForColumn(
+  currentLabelNames: ReadonlyArray<string>,
+  column: BoardColumnId,
+): ReadonlyArray<string> {
+  const kept = currentLabelNames.filter((name) => !isStatusLabelName(name));
+  if (column === "backlog" || column === "done") {
+    return kept;
+  }
+  const statusLabel = STATUS_LABEL_FOR_COLUMN[column];
+  return statusLabel === undefined ? kept : [...kept, statusLabel];
 }
 
 /** True when any issue carries a known `status:*` column label. */

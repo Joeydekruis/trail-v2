@@ -776,20 +776,23 @@ export const issueAssetUrl = Effect.fn("AssetAccess.issueAssetUrl")(function* (i
       // A lookup in a half-cloned checkout would cache a miss that outlives the clone.
       // Once it lands, a miss cached before (by enrichment) is stale too.
       if (input.projectCheckout === "cloned") yield* faviconResolver.invalidate(workspaceRoot);
-      const faviconPath =
-        input.projectCheckout === "pending"
-          ? null
-          : yield* faviconResolver
-              .resolvePath(workspaceRoot, input.projectFaviconPath ?? undefined)
-              .pipe(
-                Effect.mapError(
-                  (cause) =>
-                    new AssetProjectFaviconResolutionError({
-                      resource: input.resource,
-                      cause,
-                    }),
-                ),
-              );
+      const resolveProjectFavicon = (projectFaviconPath: string | undefined) =>
+        faviconResolver.resolvePath(workspaceRoot, projectFaviconPath).pipe(
+          Effect.mapError(
+            (cause) =>
+              new AssetProjectFaviconResolutionError({
+                resource: input.resource,
+                cause,
+              }),
+          ),
+        );
+      const projectFaviconHint = input.projectFaviconPath ?? undefined;
+      let faviconPath =
+        input.projectCheckout === "pending" ? null : yield* resolveProjectFavicon(projectFaviconHint);
+      if (faviconPath === null && input.projectCheckout !== "pending") {
+        yield* faviconResolver.invalidate(workspaceRoot);
+        faviconPath = yield* resolveProjectFavicon(projectFaviconHint);
+      }
       const isExternalOverride =
         faviconPath !== null &&
         input.projectFaviconPath !== undefined &&

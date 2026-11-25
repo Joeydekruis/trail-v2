@@ -5,14 +5,33 @@
 <p align="center">
   <a href="./docs/FORK_PLAN.md"><strong>Fork plan</strong></a> ·
   <a href="./docs/operations/development.md">Development</a> ·
-  <a href="https://github.com/pingdotgg/t3code">Upstream (T3 Code)</a>
+  <a href="https://github.com/pingdotgg/t3code"><strong>T3 Code (upstream)</strong></a>
 </p>
 
-**Trail** is an additive fork of [T3 Code](https://github.com/pingdotgg/t3code). T3 already runs agents in worktrees, ships desktop/web/mobile clients, and talks to Cursor, Claude, Codex, OpenCode, and more. Trail adds the PM layer: a GitHub-issues Kanban board, a project dashboard, docs tied to the repo, and (later) autopilot and decisions — without replacing the agent runtime underneath.
+> **Fork notice:** [Trail](https://github.com/Joeydekruis/trail-v2) is an additive fork of **[T3 Code](https://github.com/pingdotgg/t3code)** — the open-source agent GUI from [pingdotgg/t3code](https://github.com/pingdotgg/t3code). It is **not** the upstream project. Bug fixes and features that belong in stock T3 belong in [pingdotgg/t3code](https://github.com/pingdotgg/t3code); Trail-only work stays in this repo.
+
+**Trail** keeps T3’s agent runtime, desktop/web/mobile clients, and provider integrations (Cursor, Claude Code, Codex, OpenCode, and more). On top of that it adds a PM layer: a GitHub-issues Kanban board, a project dashboard, repo-scoped docs, and (later) autopilot and decisions.
 
 One **workspace** is one git repository, mapped to a single T3 **project**. The board, dashboard, and files views are per project; issues are tracked by number on the connected issue tracker (GitHub first).
 
-The product UI is still largely T3-branded while Trail features land. Design reference: `docs/designs/Trail Desktop — Workspace switcher & Kanban.html` and [FORK_PLAN.md](./docs/FORK_PLAN.md).
+TRAIL branding applies to the fork’s product name and shell; most of the stack, docs, and protocol identifiers still follow upstream T3 Code until [FORK_PLAN.md](./docs/FORK_PLAN.md) deployment work (app ID, data dir, updater feed) lands. Design reference: `docs/designs/Trail Desktop — Workspace switcher & Kanban.html`.
+
+## Credits and upstream (T3 Code)
+
+Trail would not exist without **[T3 Code](https://github.com/pingdotgg/t3code)**.
+
+| Resource | Link |
+| --- | --- |
+| Upstream repository | [https://github.com/pingdotgg/t3code](https://github.com/pingdotgg/t3code) |
+| Upstream releases | [https://github.com/pingdotgg/t3code/releases](https://github.com/pingdotgg/t3code/releases) |
+| Product site | [https://t3.codes](https://t3.codes) |
+| Maintainers | [T3 Tools Inc.](https://github.com/pingdotgg) — the T3 Code team (Theo and contributors) |
+
+**What comes from T3 Code (thank you):** the WebSocket server and orchestration model, provider adapters, checkpointing and git integration, the web and Electron desktop clients, mobile app source, shared packages under `apps/` and `packages/`, user documentation under [docs/user/](./docs/user/), and the MIT-licensed codebase (see [LICENSE](./LICENSE)).
+
+**What Trail adds:** UI and server seams listed in [PATCHES.md](./PATCHES.md), packages such as `trail-contracts` / `trail-server`, and fork-specific ops docs. We merge [upstream `main`](https://github.com/pingdotgg/t3code) regularly; see [trail-maintainer.md](./docs/operations/trail-maintainer.md).
+
+**Trail maintainer:** [Joeydekruis](https://github.com/Joeydekruis) ([Joeydekruis/trail-v2](https://github.com/Joeydekruis/trail-v2)).
 
 ## What Trail adds (planned)
 
@@ -37,9 +56,11 @@ From the repository root:
 
 ```sh
 vp i
+gh repo set-default Joeydekruis/trail-v2    # once per machine — PRs must not go to upstream T3
+git remote set-url --push upstream DISABLE   # if you added the upstream remote
 ```
 
-Use the [development runbook](./docs/operations/development.md#first-checkout) for Windows long-path checkout, dev containers, and isolated state under a worktree’s `.t3` (never develop against `~/.t3/userdata`).
+Use the [development runbook](./docs/operations/development.md#trail-fork-checkout) for clone/remotes, Windows long-path checkout, dev containers, and isolated state under a worktree’s `.t3` (never develop against `~/.t3/userdata`).
 
 ## Run locally
 
@@ -158,6 +179,4 @@ Until that ships, treat **local `dist:desktop:*` + launch smoke** as the bar for
 
 ## License
 
-[MIT](./LICENSE) — same as T3 Code. Keep upstream copyright notices in forked files.
-
-Trail is maintained by [Joeydekruis](https://github.com/Joeydekruis); agent and UI foundations are from the T3 Code project.
+This repository is distributed under the [MIT License](./LICENSE). Upstream T3 Code is copyright **T3 Tools Inc.** (see [LICENSE](./LICENSE)). Preserve copyright and license notices in files carried over from [pingdotgg/t3code](https://github.com/pingdotgg/t3code). Trail-specific files follow the same license unless noted otherwise.

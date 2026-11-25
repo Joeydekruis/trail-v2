@@ -62,6 +62,7 @@ interface FileBrowserPanelProps {
   onRefreshSelectedFile?: () => void;
   workspaceMutationId: string | null;
   answersPanelFind?: boolean;
+  embeddedInSidebar?: boolean;
 }
 
 function treePath(entry: ProjectEntry): string {
@@ -166,6 +167,7 @@ export default function FileBrowserPanel({
   workspaceMutationId,
   hostFolder = false,
   answersPanelFind = false,
+  embeddedInSidebar = false,
 }: FileBrowserPanelProps) {
   const panelPath = (relativePath: string) =>
     hostFolder ? joinHostPath(cwd, relativePath) : relativePath;
@@ -361,9 +363,13 @@ export default function FileBrowserPanel({
     return subscribePreviewAction(onPanelAction);
   }, [answersPanelFind]);
   const expandedPathsRef = useRef(new Set<string>());
-  const expansionRoot = `${environmentId}:${cwd}`;
+  const expansionRoot = embeddedInSidebar
+    ? `trail-sidebar:${environmentId}:${cwd}`
+    : `${environmentId}:${cwd}`;
   // Folders expanded when the panel last unmounted; each reopens once lazy loading lists it.
-  const [pendingExpandedPaths] = useState(() => new Set(readExpandedDirectories(expansionRoot)));
+  const [pendingExpandedPaths] = useState(() =>
+    embeddedInSidebar ? new Set<string>() : new Set(readExpandedDirectories(expansionRoot)),
+  );
   // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- subscribes to the Pierre tree model to load directories as they are expanded
   useEffect(() => {
     const currentPaths = new Set(directoryPaths);
@@ -548,6 +554,7 @@ export default function FileBrowserPanel({
   return (
     <div
       className="flex min-h-0 flex-1 flex-col bg-background"
+      data-embedded-in-sidebar={embeddedInSidebar ? "" : undefined}
       data-file-browser-panel={`${environmentId}:${cwd}`}
       // Capture runs before the tree's shadow-internal row handler opens the menu.
       onContextMenuCapture={(event) => {
@@ -581,7 +588,7 @@ export default function FileBrowserPanel({
           onValueChange={handleSearchValueChange}
           onClose={closeSearch}
         />
-        {directoryPaths.length > 0 && !hostFolder ? (
+        {directoryPaths.length > 0 && !hostFolder && !embeddedInSidebar ? (
           <Tooltip>
             <TooltipTrigger
               render={

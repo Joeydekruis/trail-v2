@@ -47,7 +47,7 @@ import {
   resolveThreadRouteTarget,
 } from "../threadRoutes";
 import { toastManager } from "./ui/toast";
-import { readIssueListPreferences } from "./issue/issueListPreferences";
+import { issuesNavSearch } from "~/trail/issues/issuesIm.logic";
 
 declare module "@tanstack/react-router" {
   interface HistoryState {
@@ -164,7 +164,7 @@ export function ReopenClosedViewShortcut() {
         search: (previous) => pullRequestsSearchForRestore(previous, selected),
       });
     } else if (globalIssues) {
-      destination = linkOptions({ to: "/issues", search: readIssueListPreferences() });
+      destination = linkOptions({ to: "/issues", search: issuesNavSearch() });
     } else {
       const draftId = thread === null ? drafts.getDraftIdByRef(ref) : null;
       destination =

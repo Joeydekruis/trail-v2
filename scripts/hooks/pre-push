@@ -1,0 +1,28 @@
+#!/bin/sh
+# Trail fork: refuse any push toward pingdotgg/t3code (see scripts/ensure-trail-forge-default.ts).
+
+remote_name="$1"
+push_url="$2"
+
+if [ "$remote_name" = "upstream" ]; then
+  echo "TRAIL: refused — do not push to 'upstream' (T3 Code). Use: git push origin" >&2
+  exit 1
+fi
+
+case "$push_url" in
+  *pingdotgg/t3code*)
+    echo "TRAIL: refused — push URL must not target pingdotgg/t3code (${remote_name}: ${push_url})." >&2
+    echo "TRAIL: Push only to origin (Joeydekruis/trail-v2)." >&2
+    exit 1
+    ;;
+esac
+
+origin_push=$(git remote get-url --push origin 2>/dev/null) || true
+case "$origin_push" in
+  *pingdotgg/t3code*)
+    echo "TRAIL: refused — origin push URL points at upstream T3. Fix remotes before pushing." >&2
+    exit 1
+    ;;
+esac
+
+exit 0

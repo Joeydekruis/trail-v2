@@ -24,6 +24,7 @@ import {
   type RightPanelSurface,
   useRightPanelStore,
 } from "../../rightPanelStore";
+import { TRAIL_CENTER_CHAT_FILE_TABS, openTrailChatFile } from "../../trail/chat/trailChatFileTabsStore";
 import { requestWorkspaceContentFocus, requestWorkspaceFocus } from "../../lib/workspaceFocus";
 import { setActivePreviewTab } from "../../previewStateStore";
 import { isBrowserSettingsReadError } from "../../browser/openFileInPreview";
@@ -171,9 +172,13 @@ export function useRightPanelActions(input: RightPanelActionsInput) {
     useRightPanelStore.getState().open(activeThreadRef, "device");
   };
   const addDeviceSurfaceStable = useStableCallback(addDeviceSurface);
-  const openFileSurface = (relativePath: string) => {
+  const openFileSurface = (relativePath: string, line?: number) => {
     if (!activeThreadRef || !activeProject) return;
-    useRightPanelStore.getState().openFile(activeThreadRef, relativePath);
+    if (TRAIL_CENTER_CHAT_FILE_TABS) {
+      openTrailChatFile(activeThreadRef, relativePath, line);
+      return;
+    }
+    useRightPanelStore.getState().openFile(activeThreadRef, relativePath, line);
   };
   const openFileSurfaceStable = useStableCallback(openFileSurface);
   const closePreviewPanel = () => {

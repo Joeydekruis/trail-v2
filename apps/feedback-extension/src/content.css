@@ -1,0 +1,74 @@
+#trail-feedback-hud {
+  position: fixed;
+  z-index: 2147483646;
+  right: 16px;
+  bottom: 16px;
+  font: 13px/1.4 system-ui, sans-serif;
+  color: #0f1419;
+}
+
+#trail-feedback-hud button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+#trail-feedback-hud .trail-feedback-primary {
+  background: #4af7a3;
+  color: #0a0e12;
+  font-weight: 600;
+}
+
+#trail-feedback-hud .trail-feedback-ghost {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  margin-right: 8px;
+}
+
+#trail-feedback-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483645;
+  cursor: crosshair;
+}
+
+#trail-feedback-picker-highlight {
+  position: fixed;
+  pointer-events: none;
+  border: 2px solid #4af7a3;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  z-index: 2147483646;
+}
+
+#trail-feedback-comment-panel {
+  position: fixed;
+  z-index: 2147483647;
+  width: min(360px, calc(100vw - 32px));
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  padding: 12px;
+  font: 13px/1.4 system-ui, sans-serif;
+}
+
+#trail-feedback-comment-panel textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+#trail-feedback-comment-panel .trail-feedback-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

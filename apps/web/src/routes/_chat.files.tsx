@@ -1,17 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { T } from "gt-react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { TrailComingSoonPage } from "../trail/shell/TrailComingSoonPage";
-
-function TrailFilesStubPage() {
-  return (
-    <TrailComingSoonPage
-      title={<T>Files</T>}
-      description={<T>Browse the project docs/ folder from here.</T>}
-    />
-  );
-}
-
+/** Option B: files live in the chat sidebar, not as a top-level page. */
 export const Route = createFileRoute("/_chat/files")({
-  component: TrailFilesStubPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/", replace: true });
+  },
 });

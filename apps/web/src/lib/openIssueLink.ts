@@ -7,7 +7,7 @@ import { resolveIssueLinkTarget } from "@t3tools/client-runtime/issue-links";
 import { useNavigate } from "@tanstack/react-router";
 import type { MouseEvent } from "react";
 
-import { readIssueListPreferences } from "../components/issue/issueListPreferences";
+import { issuesNavSearch } from "~/trail/issues/issuesIm.logic";
 import { ISSUES_PANEL_REF, PULL_REQUESTS_PANEL_REF, useRightPanelStore } from "../rightPanelStore";
 import { useProjects, useServerConfigs } from "../state/entities";
 
@@ -76,7 +76,7 @@ export function useOpenIssueLink(
           search: (previous) => ({ ...previous, ...selection }),
         });
       } else {
-        void navigate({ to: "/issues", search: { ...readIssueListPreferences(), ...selection } });
+        void navigate({ to: "/issues", search: issuesNavSearch(selection) });
       }
       return true;
     }

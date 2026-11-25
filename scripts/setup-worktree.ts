@@ -114,3 +114,12 @@ for (const file of ENV_FILES) {
   if (existing) NodeFS.rmSync(target);
   NodeFS.symlinkSync(source, target);
 }
+
+// TRAIL-PATCH: pin gh/forge default to Joeydekruis/trail-v2 when upstream remote is present.
+const trailForge = NodeChildProcess.spawnSync(
+  process.execPath,
+  [NodePath.join(worktree, "scripts", "ensure-trail-forge-default.ts")],
+  { cwd: worktree, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+);
+if (trailForge.stdout) process.stdout.write(trailForge.stdout);
+if (trailForge.stderr) process.stderr.write(trailForge.stderr);

@@ -4,6 +4,22 @@ T3 Code is a minimal GUI for coding agents. A Node WebSocket server wraps provid
 
 You can think of T3 Code as an open source "bring-your-own-subscription" alternative to apps like Claude Desktop, Codex App, Cursor Glass and Conductor.
 
+## Trail fork (this repository)
+
+This checkout is **Trail** — [Joeydekruis/trail-v2](https://github.com/Joeydekruis/trail-v2) — an additive fork of upstream [pingdotgg/t3code](https://github.com/pingdotgg/t3code). It is **not** a contributor worktree for sending changes to T3.
+
+**Never open pull requests, push branches, or file issues against `pingdotgg/t3code` from here** — close any mistaken upstream PR on GitHub immediately. All PRs and pushes use **`origin`** (`Joeydekruis/trail-v2`) only. The `upstream` remote is fetch-only; **`scripts/hooks/pre-push` rejects pushes to upstream** after `vp run trail:forge:ensure` (also runs on `vp i` and worktree setup).
+
+Before your first `git push`, `gh pr create`, or `pull_request_create` in a session:
+
+1. `gh repo set-default -v` → `Joeydekruis/trail-v2`
+2. `git config --get remote.origin.gh-resolved` → `base`
+3. `git remote get-url origin` → `…/Joeydekruis/trail-v2.git`
+
+If any check fails, follow [Pull requests stay on Trail](docs/operations/trail-maintainer.md#pull-requests-stay-on-trail) (`gh repo set-default Joeydekruis/trail-v2`, `git remote set-url --push upstream DISABLE`). When calling `gh` explicitly, pass `--repo Joeydekruis/trail-v2`.
+
+Worktrees inherit the same git config as the main checkout after setup runs `scripts/ensure-trail-forge-default.ts`.
+
 ## What makes T3 Code special?
 
 We have over 500,000 users who love T3 Code. It's important we maintain the things they love as we continue to iterate on the product. Here's a brief list of the things we can never compromise on.
@@ -151,7 +167,8 @@ For mobile verification, a missing or outdated native client is an install step,
 ## Pull requests
 
 - Never make a PR unless the developer explicitly asks you to do so.
-- `origin` is not always GitHub. Check `git remote get-url origin` before your first forge command and use that forge's CLI and skill. See [Forge mirror](docs/operations/development.md#forge-mirror-optional).
+- **Trail:** PRs target **`Joeydekruis/trail-v2` only**, never `pingdotgg/t3code`. See [Trail fork](#trail-fork-this-repository) and [trail-maintainer.md](docs/operations/trail-maintainer.md#pull-requests-stay-on-trail). Push with `git push -u origin HEAD`; create with **`vp run trail:pr:create`** or `gh pr create --repo Joeydekruis/trail-v2` — never bare `gh pr create`. Run `vp run trail:forge:ensure` before the first forge command in a session.
+- `origin` is not always GitHub. Check `git remote get-url origin` before your first forge command and use that forge's CLI and skill. See [Forge mirror](docs/operations/development.md#forge-mirror-optional). **In this repo, `origin` is Trail; do not treat `upstream` as the PR base.**
 - Conventional commit titles, plain language: `fix(web): new threads no longer spike CPU`.
 - Body: the problem in a sentence or two, then how you fixed it. End with the model and harness that did the work.
 - UI changes need before/after images. Motion or timing needs a short video.

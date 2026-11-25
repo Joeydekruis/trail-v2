@@ -1,0 +1,25 @@
+---
+description: Trail v2 fork — never open PRs or push Trail work to upstream T3 Code
+alwaysApply: true
+---
+
+# Trail fork (Joeydekruis/trail-v2)
+
+This workspace is **Trail**, an additive fork of [T3 Code](https://github.com/pingdotgg/t3code). It is **not** a contributor clone meant to send PRs upstream.
+
+## Absolute rules
+
+1. **Never open a PR on `pingdotgg/t3code`.** Not even “to be helpful,” not for a one-line fix. Close any mistaken upstream PR immediately; reopen only on `Joeydekruis/trail-v2`.
+2. **Pull requests target only `Joeydekruis/trail-v2`.** Use `vp run trail:pr:create` or `gh pr create --repo Joeydekruis/trail-v2` — never bare `gh pr create`.
+3. **`git push` goes to `origin` only.** `git push upstream` is blocked by `scripts/hooks/pre-push` after `vp run trail:forge:ensure`.
+4. Before the first `gh` / `pull_request_create` in a session, verify:
+   ```sh
+   gh repo set-default -v          # → Joeydekruis/trail-v2
+   git config --get remote.origin.gh-resolved   # → base
+   git remote get-url origin       # → …/Joeydekruis/trail-v2.git
+   ```
+   If anything points at `pingdotgg/t3code`, stop and run [trail-maintainer — Pull requests stay on Trail](../docs/operations/trail-maintainer.md#pull-requests-stay-on-trail).
+5. Run `vp run trail:forge:ensure` if anything looks pointed at upstream.
+6. **Do not** run `gh repo set-default pingdotgg/t3code` or open Issues/PRs on upstream from this tree.
+
+Full runbook: [docs/operations/trail-maintainer.md](../docs/operations/trail-maintainer.md).

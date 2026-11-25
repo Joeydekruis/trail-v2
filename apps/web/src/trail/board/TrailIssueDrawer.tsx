@@ -20,6 +20,8 @@ import { issueEnvironment } from "~/state/issues";
 import { useEnvironmentQuery } from "~/state/query";
 
 import { TrailAcceptanceCriteria } from "./TrailAcceptanceCriteria";
+import { TrailIssueDetailActions } from "./TrailIssueDetailActions";
+import type { TrailIssueWorkActions } from "./useTrailIssueWork";
 
 export type TrailIssueSelection = {
   readonly environmentId: EnvironmentId;
@@ -34,11 +36,13 @@ export function TrailIssueDrawer({
   open,
   selection,
   listEntry,
+  work,
   onOpenChange,
 }: {
   open: boolean;
   selection: TrailIssueSelection | null;
   listEntry: EnvironmentIssueEntry | IssueListEntry | null;
+  work: TrailIssueWorkActions;
   onOpenChange: (open: boolean) => void;
 }) {
   const gt = useGT();
@@ -62,7 +66,7 @@ export function TrailIssueDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetPopup
         side="right"
-        className="flex w-full max-w-xl flex-col sm:max-w-xl"
+        className="flex h-full max-h-full w-full max-w-xl flex-col sm:max-w-xl wco:h-[calc(100%-var(--workspace-topbar-height))] wco:max-h-[calc(100%-var(--workspace-topbar-height))]"
         showCloseButton
       >
         <SheetHeader className="text-left">
@@ -79,16 +83,25 @@ export function TrailIssueDrawer({
           </SheetDescription>
         </SheetHeader>
         {selection && reference ? (
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <TrailAcceptanceCriteria body={detailQuery.data?.body} />
-              <div className="h-[min(80vh,720px)] min-h-0">
-                <IssueDetailPanel
-                  environmentId={selection.environmentId}
-                  reference={reference}
-                  listEntry={listEntry}
-                />
-              </div>
+          <div
+            className="flex min-h-0 flex-1 flex-col overflow-hidden"
+            data-slot="sheet-panel"
+          >
+            <TrailAcceptanceCriteria body={detailQuery.data?.body} />
+            <div className="min-h-0 flex-1">
+              <IssueDetailPanel
+                environmentId={selection.environmentId}
+                reference={reference}
+                listEntry={listEntry}
+                headerTrailingActions={
+                  listEntry !== null ? (
+                    <TrailIssueDetailActions
+                      entry={listEntry as EnvironmentIssueEntry}
+                      work={work}
+                    />
+                  ) : null
+                }
+              />
             </div>
           </div>
         ) : null}

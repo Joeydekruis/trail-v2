@@ -41,6 +41,22 @@ export function resolveProjectAccent(projectKey: string, overrides: ProjectAccen
 export function projectInitial(displayName: string): string {
   const trimmed = displayName.trim();
   if (trimmed.length === 0) return "?";
-  const letter = trimmed.match(/\p{L}|\p{N}/u)?.[0];
-  return (letter ?? trimmed[0]!).toLocaleUpperCase();
+
+  const words = trimmed.split(/[\s_-]+/).filter((part) => part.length > 0);
+  if (words.length >= 2) {
+    const first = words[0]!.match(/\p{L}|\p{N}/u)?.[0];
+    const second = words[1]!.match(/\p{L}|\p{N}/u)?.[0];
+    if (first && second) {
+      return (first + second).toLocaleUpperCase();
+    }
+  }
+
+  const letters = [...trimmed.matchAll(/\p{L}|\p{N}/gu)].map((match) => match[0]!);
+  if (letters.length >= 2) {
+    return (letters[0]! + letters[1]!).toLocaleUpperCase();
+  }
+  if (letters.length === 1) {
+    return letters[0]!.toLocaleUpperCase();
+  }
+  return trimmed[0]!.toLocaleUpperCase();
 }

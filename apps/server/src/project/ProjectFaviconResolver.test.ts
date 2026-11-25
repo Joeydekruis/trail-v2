@@ -119,6 +119,32 @@ it.layer(layerTest)("ProjectFaviconResolverLive", (it) => {
       }),
     );
 
+    it.effect("finds a nested favicon.svg with shallow search", () =>
+      Effect.gen(function* () {
+        const resolver = yield* ProjectFaviconResolver.ProjectFaviconResolver;
+        const path = yield* Path.Path;
+        const cwd = yield* makeTempDir;
+        yield* writeTextFile(cwd, "packages/ui/public/favicon.svg", "<svg>nested</svg>");
+
+        expect(yield* resolver.resolvePath(cwd)).toBe(
+          path.join(cwd, "packages/ui/public/favicon.svg"),
+        );
+      }),
+    );
+
+    it.effect("finds a favicon under apps/web/public in a monorepo root", () =>
+      Effect.gen(function* () {
+        const resolver = yield* ProjectFaviconResolver.ProjectFaviconResolver;
+        const path = yield* Path.Path;
+        const cwd = yield* makeTempDir;
+        yield* writeTextFile(cwd, "apps/web/public/favicon.svg", "<svg>app</svg>");
+
+        expect(yield* resolver.resolvePath(cwd)).toBe(
+          path.join(cwd, "apps/web/public/favicon.svg"),
+        );
+      }),
+    );
+
     it.effect("uses a saved project favicon override", () =>
       Effect.gen(function* () {
         const resolver = yield* ProjectFaviconResolver.ProjectFaviconResolver;

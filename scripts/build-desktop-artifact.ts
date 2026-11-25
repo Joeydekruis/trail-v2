@@ -21,6 +21,7 @@ import { clerkFrontendApiHostnameFromPublishableKey } from "@t3tools/shared/rela
 import { resolveSpawnCommand } from "@t3tools/shared/shell";
 import rootPackageJson from "../package.json" with { type: "json" };
 import desktopPackageJson from "../apps/desktop/package.json" with { type: "json" };
+import { TRAIL_APP_BASE_NAME } from "../packages/trail-brand/constants.mjs";
 import gnomeCaptureBundle from "../apps/desktop/gnome-extension/bundle.json" with { type: "json" };
 import serverPackageJson from "../apps/server/package.json" with { type: "json" };
 
@@ -2797,8 +2798,8 @@ export function resolvePackageManagerUserAgent(packageManager: string): string {
 
 export function resolveDesktopProductName(version: string): string {
   return resolveDesktopUpdateChannel(version) === "nightly"
-    ? "T3 Code (Nightly)"
-    : (desktopPackageJson.productName ?? "T3 Code");
+    ? `${TRAIL_APP_BASE_NAME} (Nightly)`
+    : (desktopPackageJson.productName ?? TRAIL_APP_BASE_NAME);
 }
 
 export const createBuildConfig = Effect.fn("createBuildConfig")(function* (

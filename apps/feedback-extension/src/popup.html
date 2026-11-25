@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <title>Trail Feedback</title>
+    <style>
+      body {
+        font: 13px/1.4 system-ui, sans-serif;
+        margin: 12px;
+        width: 320px;
+        color: #0f1419;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-top: 8px;
+      }
+      input,
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 4px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+      .row {
+        display: none;
+      }
+      .row.visible {
+        display: block;
+      }
+      button {
+        margin-top: 12px;
+        width: 100%;
+        border: none;
+        border-radius: 8px;
+        padding: 8px;
+        font: inherit;
+        font-weight: 600;
+        background: #4af7a3;
+        cursor: pointer;
+      }
+      p {
+        margin: 8px 0 0;
+        color: #5c6570;
+      }
+      #connection {
+        font-size: 12px;
+      }
+      .debug-block {
+        display: none;
+        margin-top: 10px;
+      }
+      .debug-block.visible {
+        display: block;
+      }
+      #debugLog {
+        margin: 6px 0 0;
+        padding: 8px;
+        max-height: 160px;
+        overflow: auto;
+        font: 10px/1.35 ui-monospace, monospace;
+        background: #0f1419;
+        color: #b8c0cc;
+        border-radius: 6px;
+        white-space: pre-wrap;
+      }
+      .hint {
+        font-size: 11px;
+        color: #5c6570;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="font-size: 15px; margin: 0">Trail Feedback</h1>
+    <p>Alleen lokaal: verbindt automatisch met Trail op deze machine.</p>
+    <p id="connection"></p>
+    <label for="destinationMode">Bestemming</label>
+    <select id="destinationMode">
+      <option value="thread">Bestaande thread</option>
+      <option value="new_thread">Nieuwe thread</option>
+      <option value="new_issue">Nieuw issue</option>
+      <option value="issue">Verder op issue</option>
+    </select>
+    <div class="row" id="projectRow">
+      <label for="projectId">Project</label>
+      <select id="projectId"></select>
+    </div>
+    <div class="row" id="threadRow">
+      <label for="threadId">Thread</label>
+      <select id="threadId"></select>
+    </div>
+    <div class="row" id="issueRow">
+      <label for="issuePicker">Issue</label>
+      <select id="issuePicker"></select>
+    </div>
+    <div class="row" id="newIssueRow">
+      <label for="newIssueTitle">Issue-titel</label>
+      <input id="newIssueTitle" placeholder="Preview feedback" />
+    </div>
+    <button id="openTrail" type="button" style="background: #e8ecf0; margin-top: 4px">
+      Trail openen in Chrome (pairing)
+    </button>
+    <button id="save" type="button">Opslaan &amp; HUD aan</button>
+    <button id="refresh" type="button" style="background: #e8ecf0; margin-top: 6px">
+      Vernieuwen
+    </button>
+    <p id="status"></p>
+    <label style="margin-top: 12px">
+      <input id="debugEnabled" type="checkbox" />
+      Debug-log (popup + service worker console)
+    </label>
+    <div class="debug-block" id="debugBlock">
+      <label for="originOverride">Trail-URL (optioneel)</label>
+      <input
+        id="originOverride"
+        placeholder="http://127.0.0.1:5733"
+        autocomplete="off"
+      />
+      <p class="hint">Exacte dev-URL uit de terminal (pairing). Alleen nodig bij meerdere worktrees.</p>
+      <button id="saveOrigin" type="button" style="background: #e8ecf0; margin-top: 6px">
+        URL onthouden
+      </button>
+      <button id="clearDebug" type="button" style="background: #e8ecf0; margin-top: 6px">
+        Log wissen
+      </button>
+      <pre id="debugLog"></pre>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

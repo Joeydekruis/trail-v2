@@ -5,6 +5,7 @@ import {
   assignBoardColumn,
   filterIssuesByLabelNames,
   groupIssuesByBoardColumn,
+  mergeIssueLabelsForColumn,
   isStatusLabelName,
   nonStatusLabels,
   statusSlugFromLabelName,
@@ -25,7 +26,11 @@ describe("assignBoardColumn", () => {
     expect(assignBoardColumn([{ name: "status:todo" }])).toBe("todo");
     expect(assignBoardColumn([{ name: "status:in-progress" }])).toBe("in-progress");
     expect(assignBoardColumn([{ name: "status:review" }])).toBe("review");
-    expect(assignBoardColumn([{ name: "status:done" }])).toBe("done");
+    expect(assignBoardColumn([{ name: "status:done" }])).toBe("review");
+  });
+
+  it("puts closed issues in done regardless of labels", () => {
+    expect(assignBoardColumn([{ name: "status:todo" }], { category: "closed" })).toBe("done");
   });
 
   it("puts unlabeled and unknown status:* issues in backlog", () => {
@@ -54,17 +59,20 @@ describe("nonStatusLabels / isStatusLabelName", () => {
 
 describe("groupIssuesByBoardColumn", () => {
   it("buckets every issue into one of the five columns", () => {
+    const open = { category: "open" as const };
+    const closed = { category: "closed" as const };
     const issues = [
-      { id: "a", labels: [{ name: "status:todo" }] },
-      { id: "b", labels: [] },
-      { id: "c", labels: [{ name: "status:done" }] },
+      { id: "a", labels: [{ name: "status:todo" }], state: open },
+      { id: "b", labels: [], state: open },
+      { id: "c", labels: [{ name: "status:done" }], state: open },
+      { id: "d", labels: [], state: closed },
     ];
     const groups = groupIssuesByBoardColumn(issues);
     expect(groups.todo.map((issue) => issue.id)).toEqual(["a"]);
     expect(groups.backlog.map((issue) => issue.id)).toEqual(["b"]);
-    expect(groups.done.map((issue) => issue.id)).toEqual(["c"]);
+    expect(groups.review.map((issue) => issue.id)).toEqual(["c"]);
+    expect(groups.done.map((issue) => issue.id)).toEqual(["d"]);
     expect(groups["in-progress"]).toEqual([]);
-    expect(groups.review).toEqual([]);
   });
 });
 
@@ -73,6 +81,16 @@ describe("anyIssueHasStatusLabel", () => {
     expect(anyIssueHasStatusLabel([{ labels: [{ name: "bug" }] }])).toBe(false);
     expect(anyIssueHasStatusLabel([{ labels: [{ name: "status:todo" }] }])).toBe(true);
     expect(anyIssueHasStatusLabel([{ labels: [{ name: "status:unknown" }] }])).toBe(false);
+  });
+});
+
+describe("mergeIssueLabelsForColumn", () => {
+  it("swaps status labels and preserves others", () => {
+    expect(mergeIssueLabelsForColumn(["bug", "status:todo"], "in-progress")).toEqual([
+      "bug",
+      "status:in-progress",
+    ]);
+    expect(mergeIssueLabelsForColumn(["status:todo"], "backlog")).toEqual([]);
   });
 });
 

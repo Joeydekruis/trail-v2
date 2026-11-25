@@ -51,6 +51,8 @@ export const issuesSearchFromUrl = (raw: Record<string, unknown>): IssuesSearch 
   tracker: bounded(raw.tracker),
   scope: bounded(raw.scope),
   key: bounded(raw.key),
+  view: raw.view === "board" ? "board" : undefined,
+  im: raw.im === "board" || raw.im === "list" ? raw.im : undefined,
 });
 
 /**

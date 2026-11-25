@@ -99,9 +99,32 @@ import { useProjects } from "~/state/entities";
 import { useEnvironments, useIssuesSupported } from "~/state/environments";
 import { issueEnvironment, useIssueList } from "~/state/issues";
 import { useDebouncedValue } from "~/state/queries";
+import { TRAIL_STRICT_PROJECT_SCOPE } from "~/trail/projectScope.logic";
+import { useTrailIssueProjectFilter } from "~/trail/useTrailIssueProjectFilter";
+import { IssuesIssueModeToggle } from "~/trail/issues/IssuesIssueModeToggle";
+import { filterIssuesByLabelNames } from "~/trail/board/boardColumns.logic";
+import { TrailBoardAutopilotSwitch } from "~/trail/board/TrailBoardAutopilotSwitch";
+import { useTrailBoardAutopilot } from "~/trail/board/useTrailBoardAutopilot";
+import { useTrailIssueWork } from "~/trail/board/useTrailIssueWork";
+import { IssuesKanbanEmptyTrackers, IssuesKanbanPanel } from "~/trail/issues/IssuesKanbanPanel";
+import { TrailNewIssueButton } from "~/trail/issues/TrailNewIssueDialog";
+import { TrailIssueDetailActions } from "~/trail/board/TrailIssueDetailActions";
+import { useTrailScopedProject } from "~/trail/useTrailScopedProject";
+import {
+  resolveIssuesIm,
+  syncStoredIssuesIm,
+  writeStoredIssuesIm,
+  type IssuesIm,
+} from "~/trail/issues/issuesIm.logic";
 import { primaryServerKeybindingsAtom } from "~/state/server";
 
+/** @deprecated use `im` */
+export type IssuesPageView = "board";
+
 export interface IssuesSearch extends IssueListPreferences {
+  readonly im?: IssuesIm | undefined;
+  /** @deprecated use `im` */
+  readonly view?: IssuesPageView | undefined;
   readonly selectedEnvironmentId?: EnvironmentId | undefined;
   readonly selectedProjectId?: ProjectId | undefined;
   /** Part of the panel tab's identity, so a link reopens the tab a row press opened. */
@@ -190,10 +213,18 @@ function hostOptionsFor(
 }
 
 export function IssuesPage() {
+  return <IssuesListPage />;
+}
+
+function IssuesListPage() {
   const gt = useGT();
   const resolve = useMessages();
   const navigate = useNavigate({ from: "/issues" });
   const search = useSearch({ from: "/_chat/issues" });
+  const issuesIm = resolveIssuesIm(search);
+  useEffect(() => {
+    syncStoredIssuesIm(issuesIm);
+  }, [issuesIm]);
   const { environments } = useEnvironments();
   const projects = useProjects();
   const issuesSupported = useIssuesSupported();
@@ -209,7 +240,10 @@ export function IssuesPage() {
     ),
     environmentLabels,
   );
-  const hiddenProjects = issueProjectKeys(search.hideProjects);
+  const trailScopedProject = useTrailScopedProject(filterProjects);
+  const trailHideProjects = useTrailIssueProjectFilter(filterProjects);
+  const issueHideProjects = TRAIL_STRICT_PROJECT_SCOPE ? trailHideProjects : search.hideProjects;
+  const hiddenProjects = issueProjectKeys(issueHideProjects);
 
   const debouncedQuery = useDebouncedValue(search.q ?? "", 300);
   const listInput: IssueListInput = {
@@ -230,7 +264,7 @@ export function IssuesPage() {
     : issueListTargets(
         capableEnvironments.map((e) => e.environmentId),
         filterProjects,
-        search.hideProjects,
+        issueHideProjects,
         listInput,
       );
   const list = useIssueList(targets);
@@ -323,6 +357,7 @@ export function IssuesPage() {
     shown,
     projects.filter((project) => !hiddenProjects.has(pullRequestProjectKey(project))),
   );
+  const listTrackers = [...shown.values()].flatMap((page) => page.answer.trackers);
 
   const hostOptions = hostOptionsFor(
     [...held.values()].flatMap((page) => page.answer.trackers),
@@ -335,7 +370,9 @@ export function IssuesPage() {
     const next: IssuesSearch = {
       who: merged.who ?? search.who,
       status: merged.status ?? search.status,
-      ...(merged.hideProjects?.length ? { hideProjects: merged.hideProjects } : {}),
+      ...(!TRAIL_STRICT_PROJECT_SCOPE && merged.hideProjects?.length
+        ? { hideProjects: merged.hideProjects }
+        : {}),
       ...(merged.host ? { host: merged.host } : {}),
       q: merged.q || undefined,
       ...(merged.label?.length ? { label: merged.label } : {}),
@@ -349,9 +386,20 @@ export function IssuesPage() {
       ...(merged.tracker ? { tracker: merged.tracker } : {}),
       ...(merged.scope ? { scope: merged.scope } : {}),
       ...(merged.key ? { key: merged.key } : {}),
+      ...(merged.im ? { im: merged.im } : issuesIm !== "list" ? { im: issuesIm } : {}),
     };
+    if (patch.im !== undefined) {
+      writeStoredIssuesIm(patch.im);
+    }
     writeIssueListPreferences(issueListPreferences(next));
     void navigate({ search: next });
+  };
+  const setIssuesIm = (im: IssuesIm) => {
+    writeStoredIssuesIm(im);
+    void navigate({
+      search: (previous) => ({ ...previous, im, view: undefined }),
+      replace: true,
+    });
   };
   const clearedSelection = {
     selectedEnvironmentId: undefined,
@@ -528,9 +576,15 @@ export function IssuesPage() {
         </EmptyTitle>
       </EmptyHeader>
       <EmptyContent>
-        <Button variant="outline" onClick={() => updateSearch({ hideProjects: undefined })}>
-          <T>Show all projects</T>
-        </Button>
+        {TRAIL_STRICT_PROJECT_SCOPE ? (
+          <EmptyDescription>
+            <T>No issues for this project under the current filters.</T>
+          </EmptyDescription>
+        ) : (
+          <Button variant="outline" onClick={() => updateSearch({ hideProjects: undefined })}>
+            <T>Show all projects</T>
+          </Button>
+        )}
       </EmptyContent>
     </Empty>
   ) : groups.length === 0 ? (
@@ -658,13 +712,78 @@ export function IssuesPage() {
     </div>
   );
 
+  const allIssueRows = groups.flatMap((group) => group.rows);
+  const boardFilteredRows = filterIssuesByLabelNames(allIssueRows, search.label ?? []);
+  const boardAutopilot = useTrailBoardAutopilot(
+    trailScopedProject?.environmentId ?? null,
+    trailScopedProject?.projectId ?? null,
+  );
+  const boardWork = useTrailIssueWork({
+    rows: boardFilteredRows,
+    onListRefresh: () => list.refresh(),
+    autopilotEnabled: boardAutopilot.enabled,
+  });
+  const boardBody: ReactNode = !issuesSupported ? (
+    <PullRequestsUnavailableState
+      title={gt("Issues unavailable")}
+      error={gt("Update this environment's T3 Code server to browse issues.")}
+    />
+  ) : noneAnswered && list.isPending ? (
+    <PullRequestListGhost />
+  ) : noneAnswered && list.error ? (
+    <PullRequestsUnavailableState
+      error={list.error}
+      onRetry={list.retry}
+      refreshing={list.isPending}
+    />
+  ) : everyProjectHidden ? (
+    <Empty>
+      <EmptyMedia variant="icon">
+        <IssueGlyph.issue />
+      </EmptyMedia>
+      <EmptyHeader>
+        <EmptyTitle>
+          <T>Every project is hidden</T>
+        </EmptyTitle>
+      </EmptyHeader>
+      <EmptyContent>
+        {TRAIL_STRICT_PROJECT_SCOPE ? (
+          <EmptyDescription>
+            <T>No issues for this project under the current filters.</T>
+          </EmptyDescription>
+        ) : (
+          <Button variant="outline" onClick={() => updateSearch({ hideProjects: undefined })}>
+            <T>Show all projects</T>
+          </Button>
+        )}
+      </EmptyContent>
+    </Empty>
+  ) : groups.length === 0 ? (
+    <IssuesKanbanEmptyTrackers />
+  ) : (
+    <IssuesKanbanPanel
+      rows={allIssueRows}
+      search={search}
+      updateSearch={updateSearch}
+      work={boardWork}
+      autopilotEnabled={boardAutopilot.enabled}
+      emptyState={
+        <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+          <T>No issues under these filters.</T>
+        </p>
+      }
+    />
+  );
+
+  const issuesMainBody = issuesIm === "board" ? boardBody : listBody;
+
   return (
     <SidebarInset className="h-dvh min-h-0 overflow-hidden overscroll-y-none">
       <div className="relative flex min-h-0 flex-1">
         <div className="@container/issue-list flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden bg-background">
           <WorkspacePageHeader
             electron={isElectron}
-            reserveNativeControls={!rightPanelState.isOpen}
+            reserveNativeControls={issuesIm === "list" && rightPanelState.isOpen}
             className="relative bg-background"
           >
             <WorkspaceBreadcrumb ariaLabel={gt("Issues breadcrumb")}>
@@ -699,8 +818,21 @@ export function IssuesPage() {
             </div>
           </WorkspacePageHeader>
 
-          <div className="topbar-scroll-fade scrollbar-gutter-both min-h-0 flex-1 overflow-y-auto">
-            <WorkspacePageContainer width="expanded" className="min-h-full gap-4">
+          <div
+            className={
+              issuesIm === "board"
+                ? "topbar-scroll-fade scrollbar-gutter-both flex min-h-0 flex-1 flex-col overflow-hidden"
+                : "topbar-scroll-fade scrollbar-gutter-both min-h-0 flex-1 overflow-y-auto"
+            }
+          >
+            <WorkspacePageContainer
+              width="expanded"
+              className={
+                issuesIm === "board"
+                  ? "flex min-h-0 max-w-none flex-1 flex-col gap-3 px-4 pt-4 pb-4 sm:px-5"
+                  : "min-h-full gap-4"
+              }
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <div className="min-w-0 basis-full @lg/issue-list:min-w-48 @lg/issue-list:basis-0 @lg/issue-list:flex-1">
                   <PullRequestSearchInput
@@ -741,6 +873,7 @@ export function IssuesPage() {
                   projects={filterProjects}
                   hiddenProjects={hiddenProjects}
                   onHiddenProjects={(hideProjects) => updateSearch({ hideProjects })}
+                  showProjectFilter={!TRAIL_STRICT_PROJECT_SCOPE}
                 />
                 <SavedViewsMenu
                   kind={ISSUE_SAVED_VIEWS}
@@ -750,7 +883,7 @@ export function IssuesPage() {
                     updateSearch({
                       who: view.who,
                       status: view.status,
-                      hideProjects: view.hideProjects,
+                      ...(TRAIL_STRICT_PROJECT_SCOPE ? {} : { hideProjects: view.hideProjects }),
                       host: view.host,
                       q: view.q,
                       label: view.label,
@@ -767,6 +900,24 @@ export function IssuesPage() {
                     onChange={(host) => updateSearch({ host: host || undefined })}
                   />
                 ) : null}
+                <IssuesIssueModeToggle onChange={setIssuesIm} value={issuesIm} />
+                {issuesIm === "board" && trailScopedProject !== null ? (
+                  <TrailBoardAutopilotSwitch
+                    environmentId={trailScopedProject.environmentId}
+                    projectId={trailScopedProject.projectId}
+                  />
+                ) : null}
+                {issuesIm === "board" ? (
+                  <TrailNewIssueButton
+                    project={trailScopedProject}
+                    scopes={filterScopes}
+                    trackers={listTrackers}
+                    host={search.host}
+                    onListRefresh={() => list.refresh()}
+                    updateSearch={updateSearch}
+                    startIssueWork={boardWork.startIssueWork}
+                  />
+                ) : null}
                 <Button
                   size="icon"
                   variant="outline"
@@ -777,12 +928,19 @@ export function IssuesPage() {
                   <RefreshIcon size="md" refreshing={list.isPending} />
                 </Button>
               </div>
-              {listBody}
+              <div
+                className={
+                  issuesIm === "board" ? "flex min-h-0 min-w-0 flex-1 flex-col" : undefined
+                }
+              >
+                {issuesMainBody}
+              </div>
             </WorkspacePageContainer>
           </div>
         </div>
 
-        {presence.present &&
+        {issuesIm === "list" &&
+        presence.present &&
         renderedSurface &&
         panelEnvironmentId !== null &&
         rightPanelRef !== null ? (
@@ -870,6 +1028,18 @@ export function IssuesPage() {
                       ...(host === undefined ? {} : { host }),
                       environmentId: panelEnvironmentId,
                     })
+                  }
+                  headerTrailingActions={
+                    panelListEntry ? (
+                      <TrailIssueDetailActions
+                        entry={panelListEntry}
+                        work={{
+                          startIssueWork: boardWork.startIssueWork,
+                          markForReview: boardWork.markForReview,
+                          moveToColumn: boardWork.moveToColumn,
+                        }}
+                      />
+                    ) : null
                   }
                 />
               ) : (

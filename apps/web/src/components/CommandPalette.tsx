@@ -288,7 +288,7 @@ import {
 import { buildSidebarProjectPickerEntries } from "../sidebarProjectGrouping";
 import { PullRequestGlyph } from "~/components/pullRequest/pullRequestIcons";
 import { readPullRequestListPreferences } from "~/components/pullRequest/pullRequestListPreferences";
-import { readIssueListPreferences } from "~/components/issue/issueListPreferences";
+import { issuesNavSearch } from "~/trail/issues/issuesIm.logic";
 import { IssueGlyph } from "~/components/issue/issuePresentation";
 import { useThreadRouteTarget } from "../hooks/useThreadRouteTarget";
 import { threadRecentUse } from "@t3tools/shared/paletteSearch";
@@ -1716,7 +1716,7 @@ function OpenCommandPaletteDialog(props: {
       title: gt("Open issues"),
       icon: <IssueGlyph.issue className={ITEM_ICON_CLASS} />,
       run: async () => {
-        await navigate({ to: "/issues", search: readIssueListPreferences() });
+        await navigate({ to: "/issues", search: issuesNavSearch() });
       },
     });
   }

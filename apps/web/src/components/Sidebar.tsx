@@ -87,7 +87,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from "react";
-import { type AnyRouter, useRouter } from "@tanstack/react-router";
+import { type AnyRouter, useLocation, useRouter } from "@tanstack/react-router";
 
 import {
   isAtomCommandInterrupted,
@@ -256,6 +256,20 @@ import {
   useComboboxFilter,
 } from "./ui/combobox";
 import { SidebarContent, SidebarGroup, useSidebar } from "./ui/sidebar";
+import {
+  resolveTrailSidebarProjectScopeKeys,
+  TRAIL_STRICT_PROJECT_SCOPE,
+} from "../trail/projectScope.logic";
+import { resolveTrailSidebarFilesCwd } from "../trail/files/trailSidebarFilesCwd.logic";
+import { resolveTrailSidebarFilesOpenRef } from "../trail/files/trailSidebarFilesOpenRef.logic";
+import { TrailWorktreeFilesSidebar } from "../trail/files/TrailWorktreeFilesSidebar";
+import { isTrailChatSidebarRoute } from "../trail/shell/trailChatRoute";
+import { SidebarTrailNav } from "../trail/shell/SidebarTrailNav";
+import {
+  TrailSidebarChatsFilesToggle,
+  useTrailSidebarListsFiles,
+} from "../trail/shell/TrailSidebarChatsFilesToggle";
+import { useTrailSidebarTabStore } from "../trail/shell/trailSidebarTabStore";
 import { SidebarChromeFooter, SidebarChromeHeader } from "./sidebar/SidebarChrome";
 import { SidebarHeaderIconButton, SidebarThreadHeader } from "./sidebar/SidebarThreadHeader";
 import { TooltipProvider } from "./ui/tooltip";
@@ -1100,12 +1114,19 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
   const archivedProjectKeys = new Set(
     projectGroups.filter((project) => project.archived).map((project) => project.projectKey),
   );
-  const chosenProjectScopeKeys = resolveSidebarProjectScopeKeys({
-    groups: projectGroups,
-    keys: persistedProjectScopeKeys,
-    settings: projectGroupingSettings,
-    canClearMissingScope: allProjectSnapshotsReady && allProjectConfigsReady,
-  }).filter((key) => !archivedProjectKeys.has(key));
+  const chosenProjectScopeKeys = TRAIL_STRICT_PROJECT_SCOPE
+    ? [...resolveTrailSidebarProjectScopeKeys({
+        groups: projectGroups,
+        persistedKeys: persistedProjectScopeKeys,
+        settings: projectGroupingSettings,
+        canClearMissingScope: allProjectSnapshotsReady && allProjectConfigsReady,
+      })]
+    : resolveSidebarProjectScopeKeys({
+        groups: projectGroups,
+        keys: persistedProjectScopeKeys,
+        settings: projectGroupingSettings,
+        canClearMissingScope: allProjectSnapshotsReady && allProjectConfigsReady,
+      }).filter((key) => !archivedProjectKeys.has(key));
   const chosenProjectGroups = scopeGroups.filter((project) =>
     chosenProjectScopeKeys.includes(project.projectKey),
   );
@@ -1151,7 +1172,8 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     delegatedUnderParent,
     findThread: (key) => threads.find((candidate) => threadShellKey(candidate) === key),
   });
-  const projectScopeKeys = revealWidensScope ? [] : chosenProjectScopeKeys;
+  const scopeRevealWidens = TRAIL_STRICT_PROJECT_SCOPE ? false : revealWidensScope;
+  const projectScopeKeys = scopeRevealWidens ? [] : chosenProjectScopeKeys;
   const projectScopeKey = projectScopeKeys.length === 0 ? null : projectScopeKeys.join("\n");
   const toggleProjectScopeKey = (key: string) =>
     setProjectScopeKeys(
@@ -1165,7 +1187,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
   // navigation handler can make the write.
   // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- writes a route reveal's widened project scope back to the persisted sidebar scope and clears selection
   useEffect(() => {
-    if (!revealWidensScope) return;
+    if (TRAIL_STRICT_PROJECT_SCOPE || !revealWidensScope) return;
     clearSelection();
     setPersistedProjectScopeKeys([]);
   }, [clearSelection, revealWidensScope, setPersistedProjectScopeKeys]);
@@ -1195,9 +1217,9 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     matches: (item, query) =>
       projectScopeFilter.contains(item, query, (candidate) => candidate.label),
   });
-  const scopedProjectGroups = revealWidensScope ? [] : chosenProjectGroups;
+  const scopedProjectGroups = scopeRevealWidens ? [] : chosenProjectGroups;
   const scopedProjectRefs = scopedProjectGroups.flatMap((project) => project.memberProjectRefs);
-  const scopedProjectKeys = revealWidensScope ? null : chosenScopeProjectKeys;
+  const scopedProjectKeys = scopeRevealWidens ? null : chosenScopeProjectKeys;
   const threadSearch = useThreadSearch(
     connectedEnvironmentIds,
     threadSearchQuery,
@@ -2750,9 +2772,11 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
           case "filter-by-project":
             if (threadProjectGroup) {
               setProjectScopeKeys(
-                projectScopeKeys.includes(threadProjectGroup.projectKey)
-                  ? []
-                  : [threadProjectGroup.projectKey],
+                TRAIL_STRICT_PROJECT_SCOPE
+                  ? [threadProjectGroup.projectKey]
+                  : projectScopeKeys.includes(threadProjectGroup.projectKey)
+                    ? []
+                    : [threadProjectGroup.projectKey],
               );
             }
             return;
@@ -3050,17 +3074,69 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
       ? shortcutLabelForCommand(keybindings, "chat.newLocal")
       : undefined);
   const newThreadInProjectShortcutLabel = shortcutLabelForCommand(keybindings, "chat.newLocal");
+  const chatPathname = useLocation({ select: (location) => location.pathname });
+  const trailChatSidebar = isTrailChatSidebarRoute(chatPathname, routeTarget);
+  const trailSidebarFiles = useTrailSidebarListsFiles();
+  const showTrailFilesSidebar = trailChatSidebar && trailSidebarFiles;
+  const trailSidebarThread =
+    routeTarget?.kind === "server"
+      ? (listedThreads.find(
+          (thread) =>
+            thread.environmentId === routeTarget.threadRef.environmentId &&
+            thread.id === routeTarget.threadRef.threadId,
+        ) ?? null)
+      : null;
+  const trailSidebarDraft =
+    routeTarget?.kind === "draft" && routeDraftThread && !routeDraftThread.promotedTo
+      ? routeDraftThread
+      : null;
+  const trailSidebarProject =
+    trailSidebarThread !== null
+      ? (projectByKey.get(`${trailSidebarThread.environmentId}:${trailSidebarThread.projectId}`) ??
+        null)
+      : trailSidebarDraft !== null
+        ? (projectByKey.get(`${trailSidebarDraft.environmentId}:${trailSidebarDraft.projectId}`) ??
+          null)
+        : null;
+  const trailSidebarFilesCwd = resolveTrailSidebarFilesCwd({
+    worktreePath: trailSidebarThread?.worktreePath ?? trailSidebarDraft?.worktreePath ?? null,
+    projectWorkspaceRoot: trailSidebarProject?.workspaceRoot ?? null,
+  });
+  const trailSidebarFilesEnvironmentId =
+    trailSidebarThread?.environmentId ?? trailSidebarDraft?.environmentId ?? null;
+  const trailSidebarFilesThreadRef = resolveTrailSidebarFilesOpenRef({
+    routeTarget,
+    draftSession:
+      trailSidebarDraft !== null
+        ? {
+            environmentId: trailSidebarDraft.environmentId,
+            threadId: trailSidebarDraft.threadId,
+          }
+        : null,
+  });
+  // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- Files tab only applies on chat routes
+  useEffect(() => {
+    if (!trailChatSidebar) {
+      useTrailSidebarTabStore.getState().setTab("chats");
+    }
+  }, [trailChatSidebar]);
   return (
     <SidebarFolderDrop>
       <SidebarChromeHeader isElectron={isElectron} />
       <SidebarContent
         ref={sidebarContentRef}
-        className="min-h-full"
+        className={showTrailFilesSidebar ? "min-h-0 flex-1" : "min-h-full"}
+        viewportFill={showTrailFilesSidebar}
         fixedHeader={
-          <SidebarGroup className="z-[1]">
-            <SidebarThreadHeader
+          <>
+            <SidebarTrailNav />
+            {trailChatSidebar ? <TrailSidebarChatsFilesToggle /> : null}
+            {showTrailFilesSidebar ? null : (
+            <SidebarGroup className="z-[1]">
+              <SidebarThreadHeader
               hasProjects={projectGroups.length > 0}
               projectScope={
+                TRAIL_STRICT_PROJECT_SCOPE ? null : (
                 <Combobox
                   items={projectScopeItems}
                   filteredItems={filteredProjectScopeItems}
@@ -3281,6 +3357,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                     </ComboboxList>
                   </ComboboxPopup>
                 </Combobox>
+                )
               }
               onNewThread={handleNewThreadClick}
               newThreadDisabled={projects.length === 0}
@@ -3305,9 +3382,38 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
               activeSearchResultIndex={activeSearchResultIndex}
               onClearSearch={clearThreadSearch}
             />
-          </SidebarGroup>
+            </SidebarGroup>
+            )}
+          </>
         }
       >
+        {showTrailFilesSidebar ? (
+          <SidebarGroup
+            className="min-h-0 flex-1 pt-0"
+            data-trail-sidebar-files=""
+          >
+            <TrailWorktreeFilesSidebar
+              cwd={trailSidebarFilesCwd}
+              environmentId={trailSidebarFilesEnvironmentId}
+              projectName={
+                trailSidebarThread !== null
+                  ? (projectDisplayNameByKey.get(
+                      `${trailSidebarThread.environmentId}:${trailSidebarThread.projectId}`,
+                    ) ?? "")
+                  : trailSidebarDraft !== null
+                    ? (projectDisplayNameByKey.get(
+                        `${trailSidebarDraft.environmentId}:${trailSidebarDraft.projectId}`,
+                      ) ?? "")
+                    : ""
+              }
+              threadRef={trailSidebarFilesThreadRef}
+              worktreePath={
+                trailSidebarThread?.worktreePath ?? trailSidebarDraft?.worktreePath ?? null
+              }
+              branch={trailSidebarThread?.branch ?? trailSidebarDraft?.branch ?? null}
+            />
+          </SidebarGroup>
+        ) : (
         <SidebarGroup className="flex-1" role="presentation">
           {isSearchingThreads ? (
             threadSearchResults.length > 0 ? (
@@ -3432,13 +3538,15 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                             project: scopedProjectGroups[0]!.displayName,
                           })}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setProjectScopeKeys([])}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-sidebar-border px-2.5 py-1 text-2xs font-medium text-sidebar-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-sidebar-foreground"
-                  >
-                    <T>Show all projects</T>
-                  </button>
+                  {TRAIL_STRICT_PROJECT_SCOPE ? null : (
+                    <button
+                      type="button"
+                      onClick={() => setProjectScopeKeys([])}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-sidebar-border px-2.5 py-1 text-2xs font-medium text-sidebar-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-sidebar-foreground"
+                    >
+                      <T>Show all projects</T>
+                    </button>
+                  )}
                 </>
               ) : (
                 <T>No threads yet</T>
@@ -3791,6 +3899,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
             </TooltipProvider>
           ) : null}
         </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarChromeFooter />
     </SidebarFolderDrop>

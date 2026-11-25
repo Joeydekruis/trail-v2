@@ -44,6 +44,12 @@ const FAVICON_CANDIDATES = [
   "public/favicon.svg",
   "public/favicon.ico",
   "public/favicon.png",
+  // TRAIL-PATCH: common monorepo app entrypoints (T3 / Trail layout).
+  "apps/web/public/favicon.svg",
+  "apps/web/public/favicon.ico",
+  "apps/web/public/favicon.png",
+  "apps/marketing/public/favicon.svg",
+  "apps/marketing/public/favicon.ico",
   "app/favicon.ico",
   "app/favicon.png",
   "app/icon.svg",
@@ -66,9 +72,37 @@ const FAVICON_CANDIDATES = [
 // Flutter's default favicon ranks below icons a project declares in its source.
 const FALLBACK_FAVICON_CANDIDATES = ["web/favicon.png"] as const;
 
+const SHALLOW_FAVICON_FILENAMES = new Set([
+  "favicon.svg",
+  "favicon.ico",
+  "favicon.png",
+  "icon.svg",
+  "icon.png",
+]);
+
+const SHALLOW_FAVICON_SKIP_DIRS = new Set([
+  ".git",
+  "node_modules",
+  ".repos",
+  "dist",
+  "build",
+  ".next",
+  ".turbo",
+  "coverage",
+  "vendor",
+  "target",
+  ".t3",
+  ".cache",
+  "out",
+]);
+
+const MAX_SHALLOW_FAVICON_DEPTH = 6;
+
 const ICON_SOURCE_FILES = [
   "index.html",
   "public/index.html",
+  "apps/web/index.html",
+  "apps/marketing/index.html",
   "app/routes/__root.tsx",
   "src/routes/__root.tsx",
   "app/root.tsx",
@@ -325,7 +359,82 @@ export const make = Effect.gen(function* () {
       return sourceDeclared;
     }
 
+    const shallow = yield* findShallowFaviconInWorkspace(projectCwd);
+    if (shallow) {
+      return shallow;
+    }
+
     return yield* findExistingFile(projectCwd, FALLBACK_FAVICON_CANDIDATES, "workspace");
+  });
+
+  const findShallowFaviconInWorkspace = Effect.fn(
+    "ProjectFaviconResolver.findShallowFaviconInWorkspace",
+  )(function* (projectCwd: string): Effect.fn.Return<string | null, ProjectFaviconResolutionError> {
+    let best: string | null = null;
+    const queue: Array<{ readonly absoluteDir: string; readonly depth: number }> = [
+      { absoluteDir: projectCwd, depth: 0 },
+    ];
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (!current || current.depth > MAX_SHALLOW_FAVICON_DEPTH) {
+        continue;
+      }
+      const names = yield* fileSystem.readDirectory(current.absoluteDir).pipe(
+        Effect.orElseSucceed(() => [] as ReadonlyArray<string>),
+        Effect.mapError(
+          (cause) =>
+            new ProjectFaviconResolutionError({
+              operation: "resolve-path",
+              workspaceRoot: projectCwd,
+              cause,
+            }),
+        ),
+      );
+      for (const name of names) {
+        const absolutePath = path.join(current.absoluteDir, name);
+        if (SHALLOW_FAVICON_FILENAMES.has(name)) {
+          const stats = yield* optionOnNotFound(fileSystem.stat(absolutePath)).pipe(
+            Effect.mapError(
+              (cause) =>
+                new ProjectFaviconResolutionError({
+                  operation: "stat-candidate",
+                  workspaceRoot: projectCwd,
+                  absolutePath,
+                  cause,
+                }),
+            ),
+          );
+          if (Option.isSome(stats) && stats.value.type === "File") {
+            if (best === null || absolutePath.length < best.length) {
+              best = absolutePath;
+            }
+          }
+          continue;
+        }
+        if (current.depth >= MAX_SHALLOW_FAVICON_DEPTH) {
+          continue;
+        }
+        const stats = yield* optionOnNotFound(fileSystem.stat(absolutePath)).pipe(
+          Effect.mapError(
+            (cause) =>
+              new ProjectFaviconResolutionError({
+                operation: "stat-candidate",
+                workspaceRoot: projectCwd,
+                absolutePath,
+                cause,
+              }),
+          ),
+        );
+        if (Option.isNone(stats) || stats.value.type !== "Directory") {
+          continue;
+        }
+        if (SHALLOW_FAVICON_SKIP_DIRS.has(name)) {
+          continue;
+        }
+        queue.push({ absoluteDir: absolutePath, depth: current.depth + 1 });
+      }
+    }
+    return best;
   });
 
   const faviconCache = yield* Cache.makeWith<string, string | null, ProjectFaviconResolutionError>(

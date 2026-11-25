@@ -25,7 +25,7 @@ function TrailBoardCardImpl({
       aria-current={selected ? "true" : undefined}
       onClick={() => onSelect(entry)}
       className={cn(
-        "flex w-full flex-col gap-2 rounded-md border border-border/60 bg-card px-3 py-2.5 text-left shadow-xs transition-colors",
+        "flex w-full cursor-pointer flex-col gap-2 rounded-md border border-border/60 bg-card px-3 py-2.5 text-left shadow-xs transition-colors",
         selected ? "border-ring bg-accent" : "hover:bg-accent/50",
       )}
     >

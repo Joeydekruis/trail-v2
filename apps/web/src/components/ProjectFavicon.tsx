@@ -36,9 +36,11 @@ export function ProjectFavicon(input: {
   project: ProjectFaviconProject;
   className?: string | undefined;
   fallbackIcon?: ComponentType<{ className?: string }>;
+  /** Trail rail: repo icon wins over a stored monogram/emoji. */
+  preferRepoFavicon?: boolean | undefined;
 }) {
   const { project } = input;
-  if (project.projectIcon?.kind === "monogram") {
+  if (!input.preferRepoFavicon && project.projectIcon?.kind === "monogram") {
     return (
       <ProjectMonogram
         text={project.projectIcon.text}
@@ -47,7 +49,7 @@ export function ProjectFavicon(input: {
       />
     );
   }
-  if (project.projectIcon?.kind === "emoji") {
+  if (!input.preferRepoFavicon && project.projectIcon?.kind === "emoji") {
     return (
       <ProjectFaviconFallback
         className={input.className}
@@ -56,7 +58,7 @@ export function ProjectFavicon(input: {
       />
     );
   }
-  if (project.projectIcon?.kind === "lucide") {
+  if (!input.preferRepoFavicon && project.projectIcon?.kind === "lucide") {
     const colorClassName = projectIconColorClassName(project.projectIcon.color);
     const iconClassName = cn(
       "inline-flex size-3.5 shrink-0 items-center justify-center",

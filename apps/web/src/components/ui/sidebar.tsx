@@ -685,33 +685,50 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
 function SidebarContent({
   className,
   fixedHeader,
+  viewportFill = false,
   ...props
 }: React.ComponentProps<"div"> & {
   fixedHeader?: React.ReactNode;
+  /** Let flex children (e.g. an embedded file tree) take the remaining sidebar height. */
+  viewportFill?: boolean;
 }) {
+  const content = (
+    <div
+      className={cn(
+        "flex w-full min-w-0 flex-col [overflow-anchor:none] group-data-[collapsible=icon]:overflow-hidden [&>[data-sidebar=group]+[data-sidebar=group]]:pt-0",
+        fixedHeader && "[&>[data-sidebar=group]:first-child]:pt-0",
+        viewportFill && "min-h-0 flex-1 overflow-hidden",
+        className,
+      )}
+      data-sidebar="content"
+      data-slot="sidebar-content"
+      {...props}
+    />
+  );
+
   return (
     <>
       {fixedHeader ? <div className="w-full shrink-0">{fixedHeader}</div> : null}
-      <ScrollArea
-        hideScrollbars
-        scrollFade
-        scrollFadePadding={false}
-        // Rows provide keyboard access; exclude the viewport from tab order to flatten VoiceOver's WebKit
-        // interaction boundary.
-        viewportTabIndex={-1}
-        className="h-auto min-h-0 flex-1 [&>[data-slot=scroll-area-viewport]]:[--fade-size:0.75rem]"
-      >
+      {viewportFill ? (
         <div
-          className={cn(
-            "flex w-full min-w-0 flex-col [overflow-anchor:none] group-data-[collapsible=icon]:overflow-hidden [&>[data-sidebar=group]+[data-sidebar=group]]:pt-0",
-            fixedHeader && "[&>[data-sidebar=group]:first-child]:pt-0",
-            className,
-          )}
-          data-sidebar="content"
-          data-slot="sidebar-content"
-          {...props}
-        />
-      </ScrollArea>
+          className="flex min-h-0 flex-1 basis-0 flex-col overflow-hidden"
+          data-slot="sidebar-content-viewport"
+        >
+          {content}
+        </div>
+      ) : (
+        <ScrollArea
+          hideScrollbars
+          scrollFade
+          scrollFadePadding={false}
+          // Rows provide keyboard access; exclude the viewport from tab order to flatten VoiceOver's WebKit
+          // interaction boundary.
+          viewportTabIndex={-1}
+          className="h-auto min-h-0 flex-1 [&>[data-slot=scroll-area-viewport]]:[--fade-size:0.75rem]"
+        >
+          {content}
+        </ScrollArea>
+      )}
     </>
   );
 }

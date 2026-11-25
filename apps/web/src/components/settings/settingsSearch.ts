@@ -1214,6 +1214,14 @@ export const SETTINGS_SEARCH_ITEMS = [
     scope: "project-defaults",
     searchTerms: [msg("auto pull default branch current checkout fast forward upstream")],
   },
+  // TRAIL-PATCH: board autopilot (Joeydekruis/trail-v2 #8)
+  {
+    id: "trail-board-autopilot",
+    title: msg("Board autopilot"),
+    to: "/settings/projects",
+    scope: "project-defaults",
+    searchTerms: [msg("kanban todo in progress automatically start next issue board")],
+  },
   {
     id: "remove-agent-credits-on-merge",
     title: msg("Remove agent credits when merging"),

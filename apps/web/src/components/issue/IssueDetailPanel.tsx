@@ -415,6 +415,8 @@ export function IssueDetailPanel({
   listEntry = null,
   onSelectPullRequest,
   onSelectIssue,
+  // TRAIL-PATCH: board actions beside refresh (Joeydekruis/trail-v2 #8)
+  headerTrailingActions = null,
 }: {
   environmentId: EnvironmentId;
   reference: IssueRef;
@@ -425,6 +427,7 @@ export function IssueDetailPanel({
   onSelectPullRequest?: ((reference: PullRequestRef) => void) | undefined;
   /** Opens a referenced issue beside this one; absent, the link goes to the host. */
   onSelectIssue?: ((reference: IssueRef & { readonly url: string }) => void) | undefined;
+  headerTrailingActions?: ReactNode;
 }) {
   const gt = useGT();
   const messages = useMessages();
@@ -644,6 +647,7 @@ export function IssueDetailPanel({
             >
               <RefreshIcon size="sm" refreshing={detailQuery.isPending} />
             </Button>
+            {headerTrailingActions}
           </PullRequestDetailTitleRow>
 
           {detailQuery.error !== null && !detailQuery.isPending ? (

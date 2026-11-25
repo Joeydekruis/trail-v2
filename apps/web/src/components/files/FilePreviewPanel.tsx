@@ -166,6 +166,8 @@ interface FilePreviewPanelProps {
   onPendingChange: (relativePath: string, pending: boolean) => void;
   selectedFilePending: boolean;
   workspaceMutationId: string | null;
+  /** Trail chat column: start with the side tree hidden; user can toggle it in the file chrome. */
+  fileExplorerInitiallyOpen?: boolean;
 }
 
 const MermaidFilePreview = lazy(() =>
@@ -1287,6 +1289,7 @@ export default function FilePreviewPanel({
   onPendingChange,
   selectedFilePending,
   workspaceMutationId,
+  fileExplorerInitiallyOpen,
 }: FilePreviewPanelProps) {
   const relativePath =
     attachment === undefined ? resolveFilePreviewPath(requestedPath, cwd) : requestedPath;
@@ -1356,7 +1359,9 @@ export default function FilePreviewPanel({
     serverConfig?.shellRevealInFileManager === true;
   // Everything preview-related keys off previewPath; a folder has no preview.
   const previewPath = isFolder ? null : relativePath;
-  const [explorerOpen, setExplorerOpen] = useState(initialExplorerOpen);
+  const [explorerOpen, setExplorerOpen] = useState(() =>
+    fileExplorerInitiallyOpen === undefined ? initialExplorerOpen() : fileExplorerInitiallyOpen,
+  );
   const showExplorer = shouldShowFileExplorer({
     relativePath: previewPath,
     explorerOpen,

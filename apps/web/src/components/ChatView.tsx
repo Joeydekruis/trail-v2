@@ -236,6 +236,9 @@ import { useNowMinute } from "../hooks/useNowMinute";
 import { usePanelAnimationSettings, usePanelPresence } from "../panelAnimations";
 import { useNewThreadHandler } from "../hooks/useHandleNewThread";
 import { useWorktreeRepositoryChoices } from "../hooks/useWorktreeRepositoryChoices";
+// TRAIL-PATCH: Option B — workspace file tabs in the chat column (not the right panel).
+import { TrailChatMainStage } from "../trail/chat/TrailChatMainStage";
+import { useTrailChatFileTabActive } from "../trail/chat/trailChatFileTabsStore";
 import { useRememberedWorktreeRepositories } from "../worktreeRepositoryChoiceStore";
 import { useOpenPanelPullRequestUrl } from "../hooks/useOpenPanelPullRequestUrl";
 import { isPreviewFocused } from "../lib/previewFocus";
@@ -1068,6 +1071,7 @@ export default function ChatView(props: ChatViewProps) {
     return labels;
   })();
   const activeThreadRef = useActiveThreadRef(activeThread);
+  const trailChatFileTabActive = useTrailChatFileTabActive(embedded ? null : activeThreadRef);
   const activeThreadKey = activeThreadRef ? scopedThreadKey(activeThreadRef) : null;
   const activeEnvironmentServerBrowser = useEnvironmentSupportsServerBrowser(
     activeThreadRef?.environmentId ?? null,
@@ -3595,6 +3599,9 @@ export default function ChatView(props: ChatViewProps) {
               {...conversationArea}
               className="relative flex min-h-0 flex-1 flex-col bg-background"
             >
+              {(() => {
+                const timelineBody = (
+                  <>
               <WorkspaceMutationIdContext value={workspaceMutationId}>
                 <ThreadTimeline
                   pendingApprovals={pendingApprovals}
@@ -3703,13 +3710,40 @@ export default function ChatView(props: ChatViewProps) {
                 />
               </WorkspaceMutationIdContext>
 
-              {showScrollToBottom && !isThreadFindActive && (
+              {showScrollToBottom && !isThreadFindActive && !trailChatFileTabActive && (
                 <ScrollToEndButton
                   bottom={scrollToEndClearance + 4}
                   summary={scrollToEndSummary}
                   onScrollToEnd={() => scrollToEnd(true)}
                 />
               )}
+                  </>
+                );
+                if (embedded || !activeThreadRef) return timelineBody;
+                return (
+                  <TrailChatMainStage
+                    availableEditors={availableEditors}
+                    composerDraftTarget={composerDraftTarget}
+                    environmentId={activeThread.environmentId}
+                    keybindings={keybindings}
+                    onPendingChange={handleFilePendingChangeStable}
+                    pendingRelativePaths={
+                      new Set(
+                        [...pendingFileSurfaceIds]
+                          .filter((id) => id.startsWith("file:"))
+                          .map((id) => id.slice("file:".length)),
+                      )
+                    }
+                    projectId={activeThread.projectId}
+                    projectName={activeProject?.title ?? ""}
+                    threadRef={activeThreadRef}
+                    workspaceMutationId={workspaceMutationId}
+                    workspaceRoot={activeWorkspaceRoot ?? ""}
+                  >
+                    {timelineBody}
+                  </TrailChatMainStage>
+                );
+              })()}
             </div>
 
             <div
@@ -3722,13 +3756,14 @@ export default function ChatView(props: ChatViewProps) {
                 setComposerOverlayElement(overlay);
                 attachFollowComposerOverlay(overlay);
               }}
-              inert={isRevertingCheckpoint}
+              inert={isRevertingCheckpoint || trailChatFileTabActive}
               data-chat-composer-overlay="true"
-              className={
+              className={cn(
                 isDraftHeroState
                   ? "pointer-events-none absolute inset-0 z-20 flex items-center [@media(max-height:34rem)]:items-end"
-                  : "pointer-events-none absolute inset-x-0 bottom-0 z-20 pt-1.5 sm:pt-2"
-              }
+                  : "pointer-events-none absolute inset-x-0 bottom-0 z-20 pt-1.5 sm:pt-2",
+                trailChatFileTabActive && "hidden",
+              )}
             >
               <div ref={draftHeroTransitionGroupRef} className="chat-composer-lane w-full">
                 <div

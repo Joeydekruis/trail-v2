@@ -31,10 +31,12 @@ Other T3 UI in the design stays as is: the thread list, subagents, lineage panel
 ### Decisions the design settles or reopens
 
 1. **Docs live in the repo's `docs/` folder for phase 1.** The Files view shows `docs/` "in sync with GitHub", which is just Git. T3's Files panel (Markdown, PDF, Mermaid, edit, comments) can render it, so no own knowledge store yet. This differs from the earlier idea of Trail as the global store that replaces `/docs`; the project description names both (replaces `/docs` and keeps the folder in sync). Recommendation: start with repo `docs/`, and add ADR/decision metadata (links from a doc to issues and threads, the "linked to N" in the design) in our own table later. **Needs your confirmation.**
-2. **Status = label, with derived automation later.** Source of truth is a `status:*` label on the issue (portable across GitHub and the other trackers). The design already shows derived badges (running/idle, "PR #52 open", "PR #49 merged"). Phase 2 can move cards automatically: thread started → In progress, PR opened → Review, PR merged → Done. Manual drag always wins.
-3. **Acceptance criteria come from the issue body** (a task list under a heading), not from a new field. The drawer note says agents read the issue text when you start a thread, so the body is the right place.
-4. **"New issue" = create on GitHub, optionally start a thread right away.** That is `IssueService.create` plus `ThreadLaunchService.launch` with the worktree strategy and the issue as first message. Both exist; our code is the modal and the glue. This is also the first, manual version of autopilot.
-5. **One board per project.** No cross-repo aggregation, so no key collisions.
+2. **Status = label on open issues; Done = GitHub closed.** While an issue is open, Trail workflow lives in `status:*` labels (portable across GitHub and other trackers). The **Done** column is driven by GitHub `state: closed` (the user closes manually on GitHub). Optional `status:*` badges on cards (running/idle, "PR #52 open") can come later. Manual drag and explicit buttons win over derived automation.
+3. **Issue workflow and autopilot (phase 2).** Five fixed columns: Backlog, Todo, In progress, To review, Done. At most **one** In progress issue per project (linked thread not yet on review). **Todo** is the agent queue. Project setting **Autopilot** (per project): when on, moving to Todo (or label `status:todo`) starts work immediately if the slot is free; when off, Todo is queue-only until **Start task**. **Start task** in the issue drawer and autopilot share one server path (`startIssueWork`: `IssueService.update` labels, `ThreadLaunchService.launch`, `thread.issue.link`). **Mark for review** (button or drag to To review) sets `status:review` and is the only trigger that releases the mutex and runs **pickNextTodo** (never end-of-turn or idle thread). **Done** is not set by the agent; closing on GitHub moves the card to Done. Workspace for launches uses T3 **`defaultThreadEnvMode`** / `OrchestrationV2ThreadLaunchWorkspaceStrategy` (`local` → `root` on the current checkout, e.g. `development`; `worktree` → new worktree) — no separate Trail-only worktree default. Todo column shows an icon when Autopilot is enabled for the project. Optional later: agent tool `mark_for_review` only when project allows it (default off). Tracking: [#8 — board autopilot, Start task, Mark for review](https://github.com/Joeydekruis/trail-v2/issues/8).
+4. **Acceptance criteria come from the issue body** (a task list under a heading), not from a new field. The drawer note says agents read the issue text when you start a thread, so the body is the right place.
+5. **"New issue" = create on GitHub, optionally start a thread right away.** That is `IssueService.create` plus `ThreadLaunchService.launch` using the project's workspace strategy and the issue as first message. Both exist; our code is the modal and the glue.
+6. **One board per project.** No cross-repo aggregation, so no key collisions.
+7. **No GitHub Projects v2 board.** Columns are fixed in the UI; GitHub only needs Issues plus `status:*` labels (bootstrap on first board use is optional polish).
 
 ## What T3 already gives us (checked in the fork at commit 7ddc81d)
 
@@ -91,12 +93,15 @@ Mapping to Trail: "task = branch + chat as worktree" is a thread started with `w
 - Route `/board` plus one nav entry (the only core edits). Issues of the current project from `IssueService`, grouped by `status:*` label, five columns, label filter.
 - Issue drawer: description, acceptance criteria (parsed from the body), activity, linked thread and PR state. Link out to GitHub.
 
-**Phase 2: a working board**
+**Phase 2: a working board and autopilot**
 
-- Drag and drop: set the status label, Done also closes the issue. Card order in our own table.
+- Drag and drop: set `status:*` labels; **To review** and **Mark for review** release the queue; **Done** follows GitHub close only (do not auto-close on drag).
+- Project settings: **Autopilot** toggle; reuse **default thread env mode** (`local` / `worktree`) for issue launches. Todo column autopilot icon when enabled.
+- Server: `startIssueWork`, `markForReview`, `pickNextTodo` (one In progress per project); bootstrap `status:*` repo labels when missing (optional first slice).
+- UI: prominent **Start task** in the issue drawer; **Mark for review**; queue toast when Start task hits a full slot.
 - Comments in the drawer sync to GitHub (`comment`).
-- New issue modal: create on GitHub, optional "start a thread in a new worktree right away".
-- "Start thread from issue" in the drawer. Then the derived moves (thread started, PR opened, PR merged).
+- New issue modal: create on GitHub, optional start thread (respect workspace setting).
+- Later in phase 2+: optional derived moves (PR opened → stay in review, PR merged → suggest close) without replacing explicit review.
 
 **Phase 3: dashboard and project rail**
 
@@ -107,7 +112,7 @@ Mapping to Trail: "task = branch + chat as worktree" is a thread started with `w
 
 - Files view over the repo's `docs/` using T3's preview components; the "updated / linked to N" line from our own links table.
 
-Later, not in scope now: autopilot beyond the manual launch, roadmap/epics, decisions/ADRs with conflict view, knowledge MCP, Chrome extension, mobile, grouping several repos.
+Later, not in scope now: roadmap/epics, decisions/ADRs with conflict view, knowledge MCP, Chrome extension, mobile, grouping several repos, agent-initiated review without a project flag.
 
 ## Deployment
 
@@ -126,7 +131,7 @@ Findings from the fork's release workflows. This only has to be settled before t
 
 - **Docs source:** repo `docs/` for phase 1 (recommended), or a separate Trail store from the start? See decision 1.
 - **Project rail:** replace T3's existing project list, or sit next to it? Is the rail needed at all in the first versions, or is T3's project list enough until phase 3?
-- **Columns as labels or GitHub Projects v2?** Labels are the default in this plan; Projects v2 needs new API code and only works on GitHub.
+- **Columns as labels or GitHub Projects v2?** Settled: fixed five columns in Trail; `status:*` labels on open issues; Done = GitHub closed (decision 2–3).
 - Is T3's database migration system easy to extend with our own tables? (phase 0)
 - Which T3 features do we hide (mobile, relay, other providers, non-GitHub trackers)? Hiding is preferred over removing, because removal makes merges harder.
 - Keep the old Trail repo alive, or archive it?

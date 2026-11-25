@@ -2,9 +2,6 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   ChartNoAxesColumnIcon,
-  Columns3Icon,
-  FileTextIcon,
-  LayoutDashboardIcon,
   SettingsIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -23,13 +20,13 @@ import {
 import { primaryServerKeybindingsAtom } from "../../state/server";
 import { cn } from "../../lib/utils";
 import { useIssuesSupported, usePullRequestsSupported } from "../../state/environments";
-import { T3Wordmark } from "../T3Wordmark";
 import {
   resolveEnvironmentIdentificationPillLabel,
   resolveSidebarStageBackdropVariant,
   SidebarStageBackdrop,
   useEnvironmentStageLabel,
 } from "../SidebarStageBackdrop";
+import { TRAIL_APP_BASE_NAME } from "@t3tools/trail-brand";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -42,7 +39,7 @@ import {
 } from "../ui/sidebar";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import { readPullRequestListPreferences } from "../pullRequest/pullRequestListPreferences";
-import { readIssueListPreferences } from "../issue/issueListPreferences";
+import { issuesNavSearch } from "~/trail/issues/issuesIm.logic";
 import { IssueGlyph } from "../issue/issuePresentation";
 import { isSidebarUtilityPage, useNavigateToMainApp } from "./mainAppLocation";
 import { SidebarThreadUndoNotice } from "./SidebarThreadUndoNotice";
@@ -179,7 +176,7 @@ function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
   const gt = useGT();
   return (
     <Link
-      aria-label={gt("T3 Code home")}
+      aria-label={gt("{app} home", { app: TRAIL_APP_BASE_NAME })}
       className={cn(
         "relative z-10 ml-[var(--workspace-titlebar-content-left)] hidden h-7 w-fit min-w-0 shrink-0 items-center overflow-hidden rounded-md outline-hidden ring-ring focus-visible:ring-2 focus-visible:ring-inset md:flex",
         onBackdrop ? "text-white" : "text-foreground",
@@ -193,17 +190,14 @@ function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
 
 function SidebarBrandMark({ onBackdrop }: { onBackdrop: boolean }) {
   return (
-    <span className="inline-flex min-w-0 items-baseline gap-1 text-sm font-medium tracking-tight">
-      <T3Wordmark aria-label="T3" className="h-[1cap] w-auto shrink-0" />
-      <span
-        className={cn(
-          "truncate [text-box:trim-both_cap_alphabetic] supports-[text-box:trim-both_cap_alphabetic]:py-1",
-          onBackdrop ? "text-white/70" : "text-muted-foreground",
-        )}
-      >
-        {/* oxlint-disable-next-line t3code/no-untranslated-copy -- product wordmark */}
-        {"Code"}
-      </span>
+    <span
+      className={cn(
+        "truncate px-0.5 text-sm font-semibold tracking-tight [text-box:trim-both_cap_alphabetic] supports-[text-box:trim-both_cap_alphabetic]:py-1",
+        onBackdrop ? "text-white" : "text-foreground",
+      )}
+    >
+      {/* oxlint-disable-next-line t3code/no-untranslated-copy -- product wordmark */}
+      {TRAIL_APP_BASE_NAME}
     </span>
   );
 }
@@ -257,7 +251,10 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
   };
   const handleIssuesClick = () => {
     closeMobileSidebar();
-    void navigate({ to: "/issues", search: readIssueListPreferences() });
+    void navigate({
+      to: "/issues",
+      search: issuesNavSearch(),
+    });
   };
   const handleSettingsClick = () => {
     closeMobileSidebar();
@@ -269,20 +266,6 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
       setOpenMobile(false);
     }
     void navigate({ to: "/usage" });
-  };
-
-  // TRAIL-PATCH: mobile-only Trail primary nav (desktop uses TrailShell rail) — see PATCHES.md / issues/2
-  const handleTrailDashboardClick = () => {
-    closeMobileSidebar();
-    void navigate({ to: "/dashboard" });
-  };
-  const handleTrailBoardClick = () => {
-    closeMobileSidebar();
-    void navigate({ to: "/board", search: { status: "open" } });
-  };
-  const handleTrailFilesClick = () => {
-    closeMobileSidebar();
-    void navigate({ to: "/files" });
   };
 
   const handleBackClick = () => {
@@ -321,25 +304,6 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
               label={gt("Issues", { $context: "sidebar link to the list of issues" })}
               onClick={handleIssuesClick}
             />
-          ) : null}
-          {isMobile ? (
-            <>
-              <SidebarUtilityItem
-                icon={<LayoutDashboardIcon />}
-                label={gt("Dashboard", { $context: "Trail primary nav" })}
-                onClick={handleTrailDashboardClick}
-              />
-              <SidebarUtilityItem
-                icon={<Columns3Icon />}
-                label={gt("Board", { $context: "Trail primary nav" })}
-                onClick={handleTrailBoardClick}
-              />
-              <SidebarUtilityItem
-                icon={<FileTextIcon />}
-                label={gt("Files", { $context: "Trail primary nav" })}
-                onClick={handleTrailFilesClick}
-              />
-            </>
           ) : null}
           <SidebarUtilityItem
             icon={<ChartNoAxesColumnIcon />}

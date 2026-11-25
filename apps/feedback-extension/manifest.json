@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Trail Feedback",
+  "description": "Local preview feedback into Trail (esbuild bundle — reload extensie na elke build).",
+  "version": "0.1.5",
+  "permissions": ["activeTab", "cookies", "storage", "scripting", "tabs"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Trail Feedback",
+    "default_popup": "popup.html"
+  }
+}

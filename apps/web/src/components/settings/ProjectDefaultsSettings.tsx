@@ -43,6 +43,8 @@ import {
   useScopedSettingSource,
   useUpdateScopedSettings,
 } from "./useScopedSettings";
+// TRAIL-PATCH: board autopilot row (Joeydekruis/trail-v2 #8)
+import { TrailProjectBoardSettingsRow } from "~/trail/settings/TrailProjectBoardSettingsRow";
 
 const WORKTREE_SUBMODULES_OPTIONS = ["recursive", "top-level", "none"] as const;
 function isWorktreeSubmodules(value: string | null): value is WorktreeSubmodules {
@@ -360,6 +362,7 @@ export function ProjectDefaultsSettings({ category }: { category: ProjectSetting
           {modelRow}
           {fallbackRow}
           {workspaceRow}
+          <TrailProjectBoardSettingsRow />
         </>
       ) : category === "general" ? (
         <>
